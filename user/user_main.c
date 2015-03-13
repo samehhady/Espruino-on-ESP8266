@@ -4,6 +4,7 @@
 #include "osapi.h"
 #include "stdout.h"
 
+// JS begin
 #include "platform_config.h"
 #include "jsinteractive.h"
 #include "jshardware.h"
@@ -12,20 +13,21 @@
 void __cxa_pure_virtual() { while (1); }
 
 int jsMain() {
-	jshInit();
-	jsvInit();
-	jsiInit(true);
+    jshInit();
+    jsvInit();
+    jsiInit(true);
+
+    while (1)
+        jsiLoop();
 	
-	while (1)
-		jsiLoop();
-	
-	// js*Kill()
+    // js*Kill()
 }
+// JS end
 
 void user_init(void) {
-	stdoutInit();
+    stdoutInit();
 //	ioInit();
 	
-	jsMain();
+    jsMain();
 }
 
