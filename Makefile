@@ -14,6 +14,7 @@ FW_BASE		= firmware
 # Base directory for the compiler. Needs a / at the end; if not set it'll use the tools that are in
 # the PATH.
 XTENSA_TOOLS_ROOT ?=
+#XTENSA_TOOLS_ROOT ?= ../esp-open-sdk/xtensa-lx106-elf-mac/bin/
 
 # base directory of the ESP8266 SDK package, absolute
 SDK_BASE	?= ../esp-open-sdk/sdk
@@ -24,7 +25,7 @@ ESPTOOL		?= ../esptool-ck-master/esptool-mac
 #ESPPORT		?= /dev/ttyUSB0
 ESPPORT		?= /dev/tty.usbserial
 #ESPDELAY indicates seconds to wait between flashing the two binary images
-ESPDELAY	?= 2
+ESPDELAY	?= 1
 ESPBAUD		?= 460800
 #ESPBAUD		?= 115200
 
@@ -61,7 +62,7 @@ SDK_INCDIR	= include include/json
 # these are the names and options to generate them
 FW_FILE_1	= 0x00000
 FW_FILE_1_ARGS	= -bo $@ -bs .text -bs .data -bs .rodata -bc -ec
-FW_FILE_2	= 0x40000
+FW_FILE_2	= 0x10000
 FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 
 # select which tools to use as compiler, librarian and linker
@@ -111,7 +112,8 @@ define compile-objects
 $1/%.o: %.c
 	$(vecho) "CC $$<"
 	$(Q) $(CC) $(INCDIR) $(MODULE_INCDIR) $(EXTRA_INCDIR) $(SDK_INCDIR) $(CFLAGS)  -c $$< -o $$@
-	$(Q) $(OC) --rename-section .text=.irom1.text --rename-section .literal=.irom1.literal $$@
+# move all object files to irom
+	$(Q) $(OC) --rename-section .text=.irom0.text --rename-section .literal=.irom0.literal $$@
 endef
 
 .PHONY: all checkdirs clean
@@ -130,10 +132,12 @@ $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
 #	$(vecho) $(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
 	$(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
-	$(Q) $(OD) -h $@
+	$(Q) $(OD) -h build/user/jsvar.o build/user/user_main.o $@
 
 $(APP_AR): $(OBJ)
 	$(vecho) "AR $@"
+	# move the user main loop back to iram
+	$(Q) $(OC) --rename-section .irom0.text=.text --rename-section .irom0.literal=.literal build/user/user_main.o
 	$(Q) $(AR) cru $@ $^
 
 checkdirs: $(BUILD_DIR) $(FW_BASE)
@@ -148,11 +152,7 @@ flash: $(FW_FILE_1) $(FW_FILE_2)
 #	$(Q) $(ESPTOOL) -cp $(ESPPORT) -cb $(ESPBAUD) -ca 0x00000 -cf firmware/0x00000.bin -v
 	$(Q) [ $(ESPDELAY) -ne 0 ] && echo "Please put the ESP in bootloader mode..." || true
 	$(Q) sleep $(ESPDELAY) || true
-#	$(Q) $(ESPTOOL) -cp $(ESPPORT) -cb $(ESPBAUD) -ca 0x40000 -cf firmware/0x40000.bin -v
-	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x00000 firmware/0x00000.bin
-	$(Q) [ $(ESPDELAY) -ne 0 ] && echo "Please put the ESP in bootloader mode again..." || true
-	$(Q) sleep $(ESPDELAY) || true
-	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x40000 firmware/0x40000.bin
+	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin
 
 #webpages.espfs: html/ html/wifi/ mkespfsimage/mkespfsimage
 webpages: html/ html/wifi/ mkespfsimage/mkespfsimage

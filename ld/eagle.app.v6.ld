@@ -4,18 +4,8 @@ MEMORY {
   dport0_0_seg :                        org = 0x3FF00000, len = 0x10
   dram0_0_seg :                         org = 0x3FFE8000, len = /* 0x14000 */ 0x14000
   iram1_0_seg :                         org = 0x40100000, len = /* 0x8000  */ 0x8000
-  irom0_0_seg :                       	org = 0x40240000, len = 0x32000
-  irom1_0_seg :                       	org = 0x40210000, len = 0x30000
-
+  irom0_0_seg :                       	org = 0x40210000, len = 0x50000
 /*irom0_0_seg :                         org = 0x40240000, len = 0x32000 */
-/*
-irom0_0_seg :                         org = 0x40201010, len = 0x2B000
-irom0_0_seg :                         org = 0x40211000, len = 0x2B000
-irom0_0_seg :                         org = 0x40211000, len = 0x6B000
-irom0_0_seg :                         org = 0x40241010, len = 0x2B000
-irom0_0_seg :                         org = 0x40251000, len = 0x2B000
-irom0_0_seg :                         org = 0x40291000, len = 0x6B000
-*/
 }
 
 PHDRS {
@@ -24,7 +14,6 @@ PHDRS {
   dram0_0_bss_phdr PT_LOAD;
   iram1_0_phdr PT_LOAD;
   irom0_0_phdr PT_LOAD;
-  irom1_0_phdr PT_LOAD;
 }
 
 /*  Default entry point:  */
@@ -178,12 +167,6 @@ SECTIONS {
     *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
     _irom0_text_end = ABSOLUTE(.);
   } >irom0_0_seg :irom0_0_phdr
-
-  .irom1.text : ALIGN(4) {
-    _irom1_text_start = ABSOLUTE(.);
-    *(.irom1.literal .irom1.text)
-    _irom1_text_end = ABSOLUTE(.);
-  } >irom1_0_seg :irom1_0_phdr
 
 }
 
