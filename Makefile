@@ -132,7 +132,8 @@ $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
 #	$(vecho) $(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
 	$(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
-	$(Q) $(OD) -h build/user/jsvar.o build/user/user_main.o $@
+#	$(Q) $(OD) -h build/user/jsvar.o build/user/user_main.o $@
+	$(Q) $(OD) -h $@
 
 $(APP_AR): $(OBJ)
 	$(vecho) "AR $@"

@@ -144,14 +144,18 @@ IOEventFlags jsiGetConsoleDevice() {
 }
 
 NO_INLINE void jsiConsolePrintChar(char data) {
-  jshTransmit(consoleDevice, (unsigned char)data);
+// EDIT //
+	os_printf("%c", data);
+//  jshTransmit(consoleDevice, (unsigned char)data);
 }
 
 NO_INLINE void jsiConsolePrint(const char *str) {
-  while (*str) {
-    if (*str == '\n') jsiConsolePrintChar('\r');
-    jsiConsolePrintChar(*(str++));
-  }
+// EDIT //
+	os_printf("%s", str);
+//  while (*str) {
+//    if (*str == '\n') jsiConsolePrintChar('\r');
+//    jsiConsolePrintChar(*(str++));
+//  }
 }
 
 void jsiConsolePrintf(const char *fmt, ...) {

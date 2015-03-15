@@ -39,7 +39,6 @@ void onTimer(void *arg) {
 		os_printf("jsiLoop\n");
 		jsiLoop();
 	}
-	os_printf("alive!\n");
 }
 
 void runTimer() {
