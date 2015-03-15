@@ -13,7 +13,7 @@ FW_BASE		= firmware
 
 # Base directory for the compiler. Needs a / at the end; if not set it'll use the tools that are in
 # the PATH.
-XTENSA_TOOLS_ROOT ?= ../esp-open-sdk/xtensa-lx106-elf-mac/bin/
+XTENSA_TOOLS_ROOT ?=
 
 # base directory of the ESP8266 SDK package, absolute
 SDK_BASE	?= ../esp-open-sdk/sdk
@@ -37,8 +37,8 @@ MODULES		= driver user
 EXTRA_INCDIR	= include .
 
 # libraries used in this project, mainly provided by the SDK
-#LIBS		= c gcc hal phy pp net80211 wpa main lwip
-LIBS		= cirom gcc hal phy pp net80211 wpa main lwip
+LIBS		= c gcc hal phy pp net80211 wpa main lwip
+#LIBS		= cirom gcc hal phy pp net80211 wpa main lwip
 
 # compiler flags using during compilation of source files
 CFLAGS		= -Os -ggdb -std=c99 -Werror -Wpointer-arith -Wundef -Wall -Wl,-EL -fno-inline-functions \
@@ -47,6 +47,7 @@ CFLAGS		= -Os -ggdb -std=c99 -Werror -Wpointer-arith -Wundef -Wall -Wl,-EL -fno-
 
 # linker flags used to generate the main object file
 LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
+#-Wl,--size-opt
 
 # linker script used for the above linkier step
 LD_SCRIPT	= eagle.app.v6.ld
@@ -67,8 +68,8 @@ FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 CC		:= $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-gcc
 AR		:= $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-ar
 LD		:= $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-gcc
-
-
+OC      := $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-objcopy
+OD      := $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-objdump
 
 ####
 #### no user configurable options below here
@@ -85,7 +86,8 @@ LIBS		:= $(addprefix -l,$(LIBS))
 APP_AR		:= $(addprefix $(BUILD_BASE)/,$(TARGET)_app.a)
 TARGET_OUT	:= $(addprefix $(BUILD_BASE)/,$(TARGET).out)
 
-LD_SCRIPT	:= $(addprefix -T$(SDK_BASE)/$(SDK_LDDIR)/,$(LD_SCRIPT))
+#LD_SCRIPT	:= $(addprefix -T$(SDK_BASE)/$(SDK_LDDIR)/,$(LD_SCRIPT))
+LD_SCRIPT	:= $(addprefix -T./ld/,$(LD_SCRIPT))
 
 INCDIR	:= $(addprefix -I,$(SRC_DIR))
 EXTRA_INCDIR	:= $(addprefix -I,$(EXTRA_INCDIR))
@@ -109,6 +111,7 @@ define compile-objects
 $1/%.o: %.c
 	$(vecho) "CC $$<"
 	$(Q) $(CC) $(INCDIR) $(MODULE_INCDIR) $(EXTRA_INCDIR) $(SDK_INCDIR) $(CFLAGS)  -c $$< -o $$@
+	$(Q) $(OC) --rename-section .text=.irom1.text --rename-section .literal=.irom1.literal $$@
 endef
 
 .PHONY: all checkdirs clean
@@ -125,8 +128,9 @@ $(FW_FILE_2): $(TARGET_OUT) firmware
 
 $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
-	$(vecho) $(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
+#	$(vecho) $(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
 	$(Q) $(LD) -L$(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
+	$(Q) $(OD) -h $@
 
 $(APP_AR): $(OBJ)
 	$(vecho) "AR $@"
