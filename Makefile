@@ -137,8 +137,7 @@ $(TARGET_OUT): $(APP_AR)
 
 $(APP_AR): $(OBJ)
 	$(vecho) "AR $@"
-	# move the user main loop back to iram
-	$(Q) $(OC) --rename-section .irom0.text=.text --rename-section .irom0.literal=.literal build/user/user_main.o
+	$(Q) $(OC) --rename-section .irom0.text=.text --rename-section .irom0.literal=.literal build/user/user_main.o # move the user main loop back to iram
 	$(Q) $(AR) cru $@ $^
 
 checkdirs: $(BUILD_DIR) $(FW_BASE)
