@@ -9,6 +9,10 @@ To do: Implement hardware specifics. First receive and execute JS code from UART
 
 # How to run?
 
-On linux or mac just execute in command line:
+Mac:
 
 make flash
+
+Linux:
+
+esptool.py --port /dev/ttyUSB0 write_flash 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin
