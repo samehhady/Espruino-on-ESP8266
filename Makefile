@@ -13,8 +13,9 @@ FW_BASE		= firmware
 
 # Base directory for the compiler. Needs a / at the end; if not set it'll use the tools that are in
 # the PATH.
-XTENSA_TOOLS_ROOT ?=
-#XTENSA_TOOLS_ROOT ?= ../esp-open-sdk/xtensa-lx106-elf-mac/bin/
+#XTENSA_TOOLS_ROOT ?=
+# I need this for Xcode...
+XTENSA_TOOLS_ROOT ?= ../esp-open-sdk/xtensa-lx106-elf-mac/bin/
 
 # base directory of the ESP8266 SDK package, absolute
 SDK_BASE	?= ../esp-open-sdk/sdk

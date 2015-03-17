@@ -3,6 +3,7 @@
 #include "ets_sys.h"
 #include "osapi.h"
 #include "stdout.h"
+//#include "uart.h"
 
 // JS begin
 #include "platform_config.h"
@@ -107,11 +108,18 @@ void runTimer() {
 	os_timer_setfn(&timer, onTimer, NULL);
 	os_timer_arm(&timer, 1000, true);
 }
+//void uart_init(UartBautRate uart0_br, UartBautRate uart1_br)
+//void uart0_tx_buffer(uint8_t *buffer, uint16_t length);
+
+//void uart0_rx_intr_handler(void *param) { // RcvMsgBuff *
+	
+//}
 
 
 void user_init(void) {
 	os_printf("user_init\n");
     stdoutInit();
+//	uart_init(BIT_RATE_115200, BIT_RATE_115200);
 	os_printf("Ready\n");
 	
 	runTimer();

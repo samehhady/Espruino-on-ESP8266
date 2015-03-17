@@ -36,6 +36,9 @@ void pvPortFree(void *ptr);
 void *pvPortMalloc(size_t xWantedSize);
 void *pvPortZalloc(size_t);
 void uart_div_modify(int no, unsigned int freq);
+
+void uart_tx_one_char(uint8_t c);
+
 void vPortFree(void *ptr);
 void *vPortMalloc(size_t xWantedSize);
 uint8 wifi_get_opmode(void);
