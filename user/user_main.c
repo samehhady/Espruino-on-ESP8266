@@ -3,7 +3,7 @@
 #include "ets_sys.h"
 #include "osapi.h"
 #include "stdout.h"
-//#include "uart.h"
+#include "uart.h"
 
 // JS begin
 #include "platform_config.h"
@@ -32,11 +32,11 @@ void jsInit() {
 // JS end
 
 /*
- void vApplicationMallocFailedHook( void ) ;//ICACHE_FLASH_ATTR;
- void *pvPortMalloc( size_t xWantedSize ) ;//ICACHE_FLASH_ATTR;
- void vPortFree( void *pv ) ;//ICACHE_FLASH_ATTR;
- size_t xPortGetFreeHeapSize( void ) ;//ICACHE_FLASH_ATTR;
- void vPortInitialiseBlocks( void ) ;//ICACHE_FLASH_ATTR;
+ void vApplicationMallocFailedHook( void );
+ void *pvPortMalloc( size_t xWantedSize );
+ void vPortFree( void *pv );
+ size_t xPortGetFreeHeapSize( void );
+ void vPortInitialiseBlocks( void );
 */
 #define malloc os_malloc
 #define free os_free
@@ -95,12 +95,24 @@ void jsEval(int n) {
 	JsVar *jsResult = jswrap_eval(jsCode); os_printf("jsResult:\n\n%s\n\n", jsVarToString(jsResult));
 }
 
+extern UartDevice UartDev;
+//extern int uartRecvCounter;
+
 void onTimer(void *arg) {
-	static int state = 0;
+//	static int state = 0;
+//	jsEval(state++);
+//	jsiLoop();
+	
 
-	jsEval(state++);
-
-	jsiLoop();
+	os_printf("%d, %d, %d, %p, %p, %p\n\r",
+			  UartDev.baut_rate,
+			  UartDev.rcv_buff.RcvBuffSize,
+			  UartDev.rcv_buff.BuffState,
+			  UartDev.rcv_buff.pRcvMsgBuff,
+			  UartDev.rcv_buff.pWritePos,
+			  UartDev.rcv_buff.pReadPos
+//			  uartRecvCounter
+	);
 }
 
 void runTimer() {
@@ -117,15 +129,20 @@ void runTimer() {
 
 
 void user_init(void) {
+//	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+
 	os_printf("user_init\n");
-    stdoutInit();
+	
+//	uart0_sendStr("uart0_sendStr\n");
+//	uart0_sendStr("uart0_sendStr\r\n");
+//    stdoutInit();
 //	uart_init(BIT_RATE_115200, BIT_RATE_115200);
 	os_printf("Ready\n");
 	
 	runTimer();
 	
-	jsInit();
-	jsVar();
+//	jsInit();
+//	jsVar();
 //	ioInit();
 	
 //    jsMain();

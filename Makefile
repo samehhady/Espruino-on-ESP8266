@@ -43,8 +43,21 @@ LIBS		= c gcc hal phy pp net80211 wpa main lwip
 #LIBS		= cirom gcc hal phy pp net80211 wpa main lwip
 
 # compiler flags using during compilation of source files
-CFLAGS		= -Os -ggdb -std=c99 -Werror -Wpointer-arith -Wundef -Wall -Wl,-EL -fno-inline-functions \
-		-nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH \
+CFLAGS		= \
+		-Os \
+		-ggdb \
+		-std=c99 \
+		-Werror \
+		-Wpointer-arith \
+		-Wundef \
+		-Wall \
+		-Wl,-EL \
+		-fno-inline-functions \
+		-nostdlib \
+		-mlongcalls \
+		-mtext-section-literals \
+		-D__ets__ \
+		-DICACHE_FLASH \
 		-Wno-address
 
 # linker flags used to generate the main object file
@@ -138,7 +151,6 @@ $(TARGET_OUT): $(APP_AR)
 
 $(APP_AR): $(OBJ)
 	$(vecho) "AR $@"
-	$(Q) $(OC) --rename-section .irom0.text=.text --rename-section .irom0.literal=.literal build/user/user_main.o # move the user main loop back to iram
 	$(Q) $(AR) cru $@ $^
 
 checkdirs: $(BUILD_DIR) $(FW_BASE)
