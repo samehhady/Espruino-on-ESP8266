@@ -41,14 +41,16 @@ void jsInit() {
 #define malloc os_malloc
 #define free os_free
 #define realloc os_realloc
-inline void *os_realloc(void *old, size_t size) {
+void *ICACHE_RAM_ATTR os_realloc(void *old, size_t size) {
 	void *new = os_malloc(size);
 	size_t s = sizeof(old);
+	if (size <= s) return old;
 	memcpy(new, old, s < size ? s : size);
 	os_free(old);
+	return new;
 }
 
-const char *jsVarToString(JsVar *jsVar) {
+const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
 	if (!jsVar) return NULL;
 	jsVar = jsvAsString(jsVar, true/*unlock*/);
 	size_t len = jsvGetStringLength(jsVar);
@@ -88,7 +90,7 @@ static const char *code[] = {
 	"(function(a) {return a; })('It works!')",
 	"console.log('It works!');"
 };
-void jsEval(int n) {
+void ICACHE_RAM_ATTR jsEval(int n) {
 	if (5 < n) return;
 	os_printf("\n----- jsEval %d: -----\n\n", n);
 	JsVar *jsCode = jsvNewFromString(code[n]); os_printf("jsCode:\n\n%s\n\n", jsVarToString(jsCode));
@@ -98,21 +100,23 @@ void jsEval(int n) {
 extern UartDevice UartDev;
 //extern int uartRecvCounter;
 
-void onTimer(void *arg) {
-//	static int state = 0;
-//	jsEval(state++);
-//	jsiLoop();
-	
+void ICACHE_RAM_ATTR onTimer(void *arg) {
+	static int state = 0;
+	jsEval(state++);
+	jsiLoop();
 
-	os_printf("%d, %d, %d, %p, %p, %p\n\r",
+/*	char c = uart_getc();
+
+	os_printf("%d, %d, %d, %p, %p, %p, %c\n\r",
 			  UartDev.baut_rate,
 			  UartDev.rcv_buff.RcvBuffSize,
 			  UartDev.rcv_buff.BuffState,
 			  UartDev.rcv_buff.pRcvMsgBuff,
 			  UartDev.rcv_buff.pWritePos,
-			  UartDev.rcv_buff.pReadPos
+			  UartDev.rcv_buff.pReadPos,
+			  c
 //			  uartRecvCounter
-	);
+	);*/
 }
 
 void runTimer() {
@@ -127,22 +131,52 @@ void runTimer() {
 	
 //}
 
+void ICACHE_RAM_ATTR user_init(void) {
+//	ets_delay_us(1000);
+	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+//	ets_delay_us(1000);
 
-void user_init(void) {
-//	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+	jsInit();
+	jsVar();
 
-	os_printf("user_init\n");
-	
+//	os_printf("user_init\n");
 //	uart0_sendStr("uart0_sendStr\n");
-//	uart0_sendStr("uart0_sendStr\r\n");
+	
 //    stdoutInit();
-//	uart_init(BIT_RATE_115200, BIT_RATE_115200);
 	os_printf("Ready\n");
 	
 	runTimer();
-	
-//	jsInit();
-//	jsVar();
+//	static JsVar *jsReceive = NULL;
+//	jsReceive =
+	//jsvNewFromString("");
+/*	jsEval(0);
+	jsEval(1);
+	int n = 0;
+	os_printf("\n----- jsEval %d: -----\n\n", n);
+	JsVar *jsCode = jsvNewFromString(code[n]); os_printf("jsCode:\n\n%s\n\n", jsVarToString(jsCode));
+	JsVar *jsResult = jswrap_eval(jsCode); os_printf("jsResult:\n\n%s\n\n", jsVarToString(jsResult));
+*/
+	while (true) {
+		char c;
+		static bool cr = false;
+		static JsVar *jsReceive = NULL;
+		while ((c = uart_getc())) {
+			uart0_putc(c);
+			if (cr && '\n' == c) {
+				os_printf("code:\n\n%s\n\n", jsVarToString(jsReceive));
+				JsVar *jsResult = jswrap_eval(jsReceive);
+				os_printf("result:\n\n%s\n\n", jsVarToString(jsResult));
+//				jsvUnLock(jsResult);
+//				jsvUnLock(jsReceive);
+				jsReceive = NULL;
+			} else if (!(cr = '\r' == c)) {
+				if (!jsReceive) jsReceive = jsvNewWithFlags(JSV_STRING_0);
+//				if (!jsReceive) jsReceive = jsvNewFromString("");
+				jsvAppendStringBuf(jsReceive, &c, 1);
+			}
+		}
+		jsiLoop();
+	}
 //	ioInit();
 	
 //    jsMain();

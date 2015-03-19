@@ -1,20 +1,3 @@
-/*
- * File	: uart.h
- * This file is part of Espressif's AT+ command set program.
- * Copyright (C) 2013 - 2016, Espressif Systems
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of version 3 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 #ifndef UART_APP_H
 #define UART_APP_H
 
@@ -22,10 +5,8 @@
 #include "eagle_soc.h"
 #include "c_types.h"
 
-#define RX_BUFF_SIZE    256
+#define RX_BUFF_SIZE    0x100
 #define TX_BUFF_SIZE    100
-#define UART0   0
-#define UART1   1
 
 typedef enum {
     FIVE_BITS = 0x0,
@@ -52,16 +33,23 @@ typedef enum {
 } UartExistParity;
 
 typedef enum {
-    BIT_RATE_9600     = 9600,
+    BIT_RATE_300     = 300,
+    BIT_RATE_600     = 600,
+    BIT_RATE_1200    = 1200,
+    BIT_RATE_2400    = 2400,
+    BIT_RATE_4800    = 4800,
+    BIT_RATE_9600    = 9600,
     BIT_RATE_19200   = 19200,
     BIT_RATE_38400   = 38400,
     BIT_RATE_57600   = 57600,
     BIT_RATE_74880   = 74880,
-    BIT_RATE_115200 = 115200,
-    BIT_RATE_230400 = 230400,
-    BIT_RATE_256000 = 256000,
-    BIT_RATE_460800 = 460800,
-    BIT_RATE_921600 = 921600
+    BIT_RATE_115200  = 115200,
+    BIT_RATE_230400  = 230400,
+    BIT_RATE_256000  = 256000,
+    BIT_RATE_460800  = 460800,
+    BIT_RATE_921600  = 921600,
+    BIT_RATE_1843200 = 1843200,
+    BIT_RATE_3686400 = 3686400,
 } UartBautRate;
 
 typedef enum {
@@ -114,6 +102,11 @@ typedef struct {
 
 void uart_init(UartBautRate uart0_br, UartBautRate uart1_br);
 void uart0_sendStr(const char *str);
+void uart0_putc(const char c);
+void uart0_tx_buffer(uint8 *buf, uint16 len);
+void uart_setup(uint8 uart_no);
+STATUS uart_tx_one_char(uint8 uart, uint8 TxChar);
+char uart_getc();
 
 #endif
 
