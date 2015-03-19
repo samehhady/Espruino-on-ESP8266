@@ -42,9 +42,9 @@ void jsInit() {
 #define free os_free
 #define realloc os_realloc
 void *ICACHE_RAM_ATTR os_realloc(void *old, size_t size) {
-	void *new = os_malloc(size);
 	size_t s = sizeof(old);
 	if (size <= s) return old;
+	void *new = os_malloc(size);
 	memcpy(new, old, s < size ? s : size);
 	os_free(old);
 	return new;
