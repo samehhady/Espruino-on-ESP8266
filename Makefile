@@ -58,7 +58,8 @@ CFLAGS		= \
 		-mtext-section-literals \
 		-D__ets__ \
 		-DICACHE_FLASH \
-		-Wno-address
+		-Wno-address \
+		-Wno-error=strict-aliasing
 
 # linker flags used to generate the main object file
 LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
