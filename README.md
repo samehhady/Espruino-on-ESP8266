@@ -16,7 +16,7 @@ Example - toggle GPIO2:
 var gpio2 = new Pin(2);
 gpio2.write(!gpio2.read());
 
-# How to run?
+# How to run Espruino-on-ESP8266?
 
 esptool.py --port /dev/ttyUSB0 write_flash 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin
 
