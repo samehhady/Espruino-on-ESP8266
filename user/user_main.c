@@ -51,10 +51,10 @@ void *ICACHE_RAM_ATTR os_realloc(void *old, size_t size) {
 }
 
 const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
-	if (!jsVar) return NULL;
+	if (!jsVar) return "undefined";
 	jsVar = jsvAsString(jsVar, true/*unlock*/);
 	size_t len = jsvGetStringLength(jsVar);
-	if (0 == len) return "";
+	if (0 == len) return "''";
 	static char *str = NULL;
 	static size_t size = 0;
 	if (!str) str = malloc(size = len+32);
@@ -64,7 +64,7 @@ const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
 	}
 	len = jsvGetString(jsVar, str, size);
 	str[len] = 0;
-	return str;
+	return str ? str : "undefined";
 }
 void jsVar() {
 	JsVar *jsString = jsvNewFromString("It works!");
@@ -156,6 +156,21 @@ void ICACHE_RAM_ATTR user_init(void) {
 	JsVar *jsCode = jsvNewFromString(code[n]); os_printf("jsCode:\n\n%s\n\n", jsVarToString(jsCode));
 	JsVar *jsResult = jswrap_eval(jsCode); os_printf("jsResult:\n\n%s\n\n", jsVarToString(jsResult));
 */
+	/*
+  jsvUnLock(jspEvaluate(buffer, true));
+	 
+  isRunning = true;
+  bool isBusy = true;
+  while (isRunning && (jsiHasTimers() || isBusy))
+	 isBusy = jsiLoop();
+	 
+  JsVar *result = jsvObjectGetChild(execInfo.root, "result", 0);//no create
+	bool pass = jsvGetBool(result);
+	jsvUnLock(result);
+	
+	 */
+	
+	
 	while (true) {
 		char c;
 		static bool cr = false;
@@ -163,14 +178,19 @@ void ICACHE_RAM_ATTR user_init(void) {
 		while ((c = uart_getc())) {
 			uart0_putc(c);
 			if (cr && '\n' == c) {
-				os_printf("code:\n\n%s\n\n", jsVarToString(jsReceive));
+//				jswrap_interface_print(jsReceive);
+//				os_printf("code:\n\n%s\n\n", jsVarToString(jsReceive));
 				JsVar *jsResult = jswrap_eval(jsReceive);
-				os_printf("result:\n\n%s\n\n", jsVarToString(jsResult));
+				os_printf("%s\n\n", jsVarToString(jsResult));
+//				jswrap_interface_print(jsResult);
+//				JsVar *jsResult = jspEvaluate(jsReceive);
+//				os_printf("result:\n\n%s\n\n", jsVarToString(jsResult));
 //				jsvUnLock(jsResult);
 //				jsvUnLock(jsReceive);
 				jsReceive = NULL;
 			} else if (!(cr = '\r' == c)) {
-				if (!jsReceive) jsReceive = jsvNewWithFlags(JSV_STRING_0);
+				if (!jsReceive) jsReceive = jsvNewFromEmptyString();
+//				if (!jsReceive) jsReceive = jsvNewWithFlags(JSV_STRING_0);
 //				if (!jsReceive) jsReceive = jsvNewFromString("");
 				jsvAppendStringBuf(jsReceive, &c, 1);
 			}

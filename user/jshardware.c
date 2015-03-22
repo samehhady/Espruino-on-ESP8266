@@ -21,6 +21,9 @@
 #include "jsparse.h"
 #include "jsinteractive.h"
 
+#include "gpio.h"
+#include "user_interface.h"
+
 void jshUSARTInitInfo(JshUSARTInfo *inf) {
 	inf->baudRate = DEFAULT_BAUD_RATE;
 	inf->pinRX    = PIN_UNDEFINED;
@@ -65,6 +68,7 @@ void jshKill() {
 }
 
 void jshIdle() {
+//	os_printf("jshIdle");
 //   while (Serial.available() > 0) {
 //      jshPushIOCharEvent(EV_SERIAL1, Serial.read());
 //   }
@@ -73,8 +77,8 @@ void jshIdle() {
 // ----------------------------------------------------------------------------
 
 int jshGetSerialNumber(unsigned char *data, int maxChars) {
-  const char *code = "HelloWorld12";
-  strncpy((char*)data, code, maxChars);
+  const char *code = "ESP8266";
+  strncpy((char *)data, code, maxChars);
   return strlen(code);
 }
 
@@ -87,27 +91,107 @@ void jshInterruptOn() {
 }
 
 void jshDelayMicroseconds(int microsec) {
-//  delayMicroseconds(microsec);
+	os_printf("jshDelayMicroseconds %d\n", microsec);
+	ets_delay_us(microsec);
 }
 
+static uint8_t PERIPHS[] = {
+  PERIPHS_IO_MUX_GPIO0_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_U0TXD_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_GPIO2_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_U0RXD_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_GPIO4_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_GPIO5_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_SD_CLK_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_SD_DATA0_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_SD_DATA1_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_SD_DATA2_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_SD_DATA3_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_SD_CMD_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_MTDI_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_MTCK_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_MTMS_U - PERIPHS_IO_MUX,
+  PERIPHS_IO_MUX_MTDO_U - PERIPHS_IO_MUX
+};
+#define FUNC_SPI 1
+#define FUNC_GPIO 3
+#define FUNC_UART 4
+static uint8_t function(JshPinState state) {
+	switch (state) {
+		case JSHPINSTATE_GPIO_OUT:
+		case JSHPINSTATE_GPIO_OUT_OPENDRAIN:
+		case JSHPINSTATE_GPIO_IN:
+		case JSHPINSTATE_GPIO_IN_PULLUP:
+		case JSHPINSTATE_GPIO_IN_PULLDOWN: return FUNC_GPIO;
+		case JSHPINSTATE_USART_OUT:
+		case JSHPINSTATE_USART_IN: return FUNC_UART;
+		case JSHPINSTATE_I2C: return FUNC_SPI;
+		case JSHPINSTATE_AF_OUT:
+		case JSHPINSTATE_AF_OUT_OPENDRAIN:
+		case JSHPINSTATE_DAC_OUT:
+		case JSHPINSTATE_ADC_IN:
+		default: return 0;
+	}
+}
 void jshPinSetState(Pin pin, JshPinState state) {
+	os_printf("jshPinSetState %d, %d\n", pin, state);
+	
+	assert(pin < 16);
+	int periph = PERIPHS_IO_MUX + PERIPHS[pin];
+	PIN_PULLUP_DIS(periph);
+	//PIN_PULLDWN_DIS(periph);
+
+	uint8_t primary_func = pin < 6 ? (PERIPHS_IO_MUX_U0TXD_U == pin || PERIPHS_IO_MUX_U0RXD_U == pin) ? FUNC_UART : FUNC_GPIO : 0;
+	uint8_t select_func = function(state);
+	PIN_FUNC_SELECT(periph, primary_func == select_func ? 0 : select_func);
+
+	switch (state) {
+		case JSHPINSTATE_GPIO_OUT:
+		case JSHPINSTATE_GPIO_OUT_OPENDRAIN:
+		//case JSHPINSTATE_AF_OUT:
+		//case JSHPINSTATE_AF_OUT_OPENDRAIN:
+		//case JSHPINSTATE_USART_OUT:
+		//case JSHPINSTATE_DAC_OUT:
+			gpio_output_set(0, 0x1<<pin, 0x1<<pin, 0);
+			break;
+		case JSHPINSTATE_ADC_IN:
+		case JSHPINSTATE_USART_IN:
+		case JSHPINSTATE_I2C:
+			PIN_PULLUP_EN(periph);
+			break;
+		case JSHPINSTATE_GPIO_IN_PULLUP: PIN_PULLUP_EN(periph);
+		case JSHPINSTATE_GPIO_IN_PULLDOWN: if (JSHPINSTATE_GPIO_IN_PULLDOWN == pin) PIN_PULLDWN_EN(periph);
+		case JSHPINSTATE_GPIO_IN:
+			gpio_output_set(0, 0, 0, 0x1<<pin);
+			break;
+		default:;
+	}
 }
 
 JshPinState jshPinGetState(Pin pin) {
+	os_printf("jshPinGetState %d\n", pin);
+
   return JSHPINSTATE_UNDEFINED;
 }
 
 void jshPinSetValue(Pin pin, bool value) {
+	os_printf("jshPinSetValue %d, %d\n", pin, value);
+
+  GPIO_OUTPUT_SET(pin, value);
 }
 
 bool jshPinGetValue(Pin pin) {
-  return false;
+	os_printf("jshPinGetValue %d, %d\n", pin, GPIO_INPUT_GET(pin));
+
+  return GPIO_INPUT_GET(pin);
 }
 
-bool jshIsDeviceInitialised(IOEventFlags device) { return true; }
+bool jshIsDeviceInitialised(IOEventFlags device) {
+	return true;
+}
 
 bool jshIsUSBSERIALConnected() {
-  return false;
+  return true;
 }
 
 JsSysTime jshGetTimeFromMilliseconds(JsVarFloat ms) {
@@ -120,7 +204,7 @@ JsVarFloat jshGetMillisecondsFromTime(JsSysTime time) {
 
 
 JsSysTime jshGetSystemTime() {
-  return 0;
+  return (JsSysTime)system_get_time()/1000000;
 }
 
 void jshSetSystemTime(JsSysTime time) {
@@ -129,9 +213,7 @@ void jshSetSystemTime(JsSysTime time) {
 // ----------------------------------------------------------------------------
 
 JsVarFloat jshPinAnalog(Pin pin) {
-  JsVarFloat value = 0;
-  jsError("Analog is not supported on this device.");
-  return value;
+  return (JsVarFloat)system_adc_read();
 }
 
 int jshPinAnalogFast(Pin pin) {
@@ -239,6 +321,7 @@ bool jshFlashContainsCode() {
 
 /// Enter simple sleep mode (can be woken up by interrupts). Returns true on success
 bool jshSleep(JsSysTime timeUntilWake) {
+//	os_printf("jshSleep %d\n", (int)timeUntilWake);
   return false;
 }
 

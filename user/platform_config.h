@@ -65,10 +65,10 @@ extern double INFINITY, NAN;
 #define FLASH_MAGIC 0xDEADBEEF
 
 #define USARTS                          1
-#define SPIS                            0
-#define I2CS                            0
-#define ADCS                            0
-#define DACS                            0
+#define SPIS                            1
+#define I2CS                            1
+#define ADCS                            1
+#define DACS                            1
 
 #define DEFAULT_CONSOLE_DEVICE              EV_SERIAL1
 

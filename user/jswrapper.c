@@ -15,15 +15,15 @@
 #include "jswrap_modules.h"
 #include "jswrap_number.h"
 #include "jswrap_object.h"
-//#include "jswrap_onewire.h"
+#include "jswrap_onewire.h"
 #include "jswrap_pin.h"
-//#include "jswrap_pipe.h"
+#include "jswrap_pipe.h"
 #include "jswrap_process.h"
 #include "jswrap_serial.h"
-//#include "jswrap_spi_i2c.h"
+#include "jswrap_spi_i2c.h"
 #include "jswrap_stream.h"
 #include "jswrap_string.h"
-//#include "jswrap_waveform.h"
+#include "jswrap_waveform.h"
 #include "jswrap_math.h"
 
 
@@ -356,12 +356,11 @@ JsVar *jswBinarySearch(const JswSymList *symbolsPtr, JsVar *parent, const char *
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
-// EDIT //
-/*static const JswSymPtr jswSymbols_I2C_proto[] = {
+static const JswSymPtr jswSymbols_I2C_proto[] = {
   {0, (void (*)(void))jswrap_i2c_readFrom, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_INT32 << (JSWAT_BITS*2))},
   {9, (void (*)(void))jswrap_i2c_setup, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
   {15, (void (*)(void))jswrap_i2c_writeTo, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))}
-};*/
+};
 static const unsigned char jswSymbolIndex_I2C_proto = 0;
 static const JswSymPtr jswSymbols_Date_proto[] = {
   {0, (void (*)(void))jswrap_date_getDate, JSWAT_INT32 | JSWAT_THIS_ARG},
@@ -415,8 +414,6 @@ static const JswSymPtr jswSymbols_String_proto[] = {
   {94, (void (*)(void))gen_jswrap_String_toUpperCase, JSWAT_JSVAR | JSWAT_THIS_ARG}
 };
 static const unsigned char jswSymbolIndex_String_proto = 3;
-// EDIT //
-/*
 static const JswSymPtr jswSymbols_OneWire_proto[] = {
   {0, (void (*)(void))jswrap_onewire_read, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
   {5, (void (*)(void))jswrap_onewire_reset, JSWAT_BOOL | JSWAT_THIS_ARG},
@@ -426,7 +423,6 @@ static const JswSymPtr jswSymbols_OneWire_proto[] = {
   {32, (void (*)(void))jswrap_onewire_skip, JSWAT_VOID | JSWAT_THIS_ARG},
   {37, (void (*)(void))jswrap_onewire_write, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_BOOL << (JSWAT_BITS*2))}
 };
-*/
 static const unsigned char jswSymbolIndex_OneWire_proto = 4;
 static const JswSymPtr jswSymbols_Serial[] = {
   
@@ -465,10 +461,9 @@ static const JswSymPtr jswSymbols_global[] = {
   {205, (void (*)(void))gen_jswrap_NaN, JSWAT_JSVARFLOAT | JSWAT_EXECUTE_IMMEDIATELY},
   {209, (void (*)(void))jswrap_number_constructor, JSWAT_JSVAR | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*1))},
   {216, (void (*)(void))gen_jswrap_Object_Object, JSWAT_JSVAR},
-	// EDIT //
-//  {223, (void (*)(void))jswrap_onewire_constructor, JSWAT_JSVAR | (JSWAT_PIN << (JSWAT_BITS*1))},
+  {223, (void (*)(void))jswrap_onewire_constructor, JSWAT_JSVAR | (JSWAT_PIN << (JSWAT_BITS*1))},
   {231, (void (*)(void))jswrap_pin_constructor, JSWAT_JSVAR | (JSWAT_JSVAR << (JSWAT_BITS*1))},
-//  {235, (void (*)(void))jswrap_spi_constructor, JSWAT_VOID},
+  {235, (void (*)(void))jswrap_spi_constructor, JSWAT_VOID},
   {239, (void (*)(void))gen_jswrap_Serial_Serial, JSWAT_JSVAR},
   {246, (void (*)(void))gen_jswrap_Serial1, JSWAT_JSVAR | JSWAT_EXECUTE_IMMEDIATELY},
   {254, (void (*)(void))jswrap_string_constructor, JSWAT_JSVAR | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*1))},
@@ -477,7 +472,7 @@ static const JswSymPtr jswSymbols_global[] = {
   {285, (void (*)(void))gen_jswrap_Uint32Array_Uint32Array, JSWAT_JSVAR | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_INT32 << (JSWAT_BITS*2)) | (JSWAT_INT32 << (JSWAT_BITS*3))},
   {297, (void (*)(void))gen_jswrap_Uint8Array_Uint8Array, JSWAT_JSVAR | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_INT32 << (JSWAT_BITS*2)) | (JSWAT_INT32 << (JSWAT_BITS*3))},
   {308, (void (*)(void))gen_jswrap_Uint8ClampedArray_Uint8ClampedArray, JSWAT_JSVAR | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_INT32 << (JSWAT_BITS*2)) | (JSWAT_INT32 << (JSWAT_BITS*3))},
-//  {326, (void (*)(void))jswrap_waveform_constructor, JSWAT_JSVAR | (JSWAT_INT32 << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
+  {326, (void (*)(void))jswrap_waveform_constructor, JSWAT_JSVAR | (JSWAT_INT32 << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
   {335, (void (*)(void))jshPinAnalog, JSWAT_JSVARFLOAT | (JSWAT_PIN << (JSWAT_BITS*1))},
   {346, (void (*)(void))jswrap_io_analogWrite, JSWAT_VOID | (JSWAT_PIN << (JSWAT_BITS*1)) | (JSWAT_JSVARFLOAT << (JSWAT_BITS*2)) | (JSWAT_JSVAR << (JSWAT_BITS*3))},
   {358, (void (*)(void))jswrap_arguments, JSWAT_JSVAR | JSWAT_EXECUTE_IMMEDIATELY},
@@ -547,7 +542,7 @@ static const unsigned char jswSymbolIndex_Object = 10;
 static const JswSymPtr jswSymbols_Serial_proto[] = {
   {0, (void (*)(void))jswrap_stream_available, JSWAT_INT32 | JSWAT_THIS_ARG},
   {10, (void (*)(void))jswrap_serial_onData, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
-//  {17, (void (*)(void))jswrap_pipe, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
+  {17, (void (*)(void))jswrap_pipe, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
   {22, (void (*)(void))jswrap_serial_print, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
   {28, (void (*)(void))jswrap_serial_println, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
   {36, (void (*)(void))jswrap_stream_read, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_INT32 << (JSWAT_BITS*1))},
@@ -599,10 +594,9 @@ static const JswSymPtr jswSymbols_Math[] = {
   {132, (void (*)(void))wrapAround, JSWAT_JSVARFLOAT | (JSWAT_JSVARFLOAT << (JSWAT_BITS*1)) | (JSWAT_JSVARFLOAT << (JSWAT_BITS*2))}
 };
 static const unsigned char jswSymbolIndex_Math = 14;
-// EDIT //
-/*static const JswSymPtr jswSymbols_fs[] = {
+static const JswSymPtr jswSymbols_fs[] = {
   {0, (void (*)(void))jswrap_pipe, JSWAT_VOID | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2)) | (JSWAT_JSVAR << (JSWAT_BITS*3))}
-};*/
+};
 static const unsigned char jswSymbolIndex_fs = 15;
 static const JswSymPtr jswSymbols_InternalError_proto[] = {
   {0, (void (*)(void))jswrap_error_toString, JSWAT_JSVAR | JSWAT_THIS_ARG}
@@ -622,7 +616,15 @@ static const unsigned char jswSymbolIndex_Object_proto = 17;
 static const JswSymPtr jswSymbols_Function_proto[] = {
   {0, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
   {6, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))},
-  {11, (void (*)(void))jswrap_function_replaceWith, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))}
+  {11, (void (*)(void))jswrap_function_replaceWith, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
+/*
+ {0, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
+ {6, (void (*)(void))jswrap_function_arguments, JSWAT_JSVAR | JSWAT_THIS_ARG | JSWAT_EXECUTE_IMMEDIATELY},
+ {16, (void (*)(void))jswrap_function_bind, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))},
+ {21, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))},
+ {26, (void (*)(void))jswrap_function_caller, JSWAT_JSVAR | JSWAT_THIS_ARG | JSWAT_EXECUTE_IMMEDIATELY},
+ {33, (void (*)(void))jswrap_function_replaceWith, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
+*/
 };
 static const unsigned char jswSymbolIndex_Function_proto = 18;
 static const JswSymPtr jswSymbols_Date[] = {
@@ -638,7 +640,7 @@ static const JswSymPtr jswSymbols_Pin_proto[] = {
   {21, (void (*)(void))jswrap_pin_writeAtTime, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_BOOL << (JSWAT_BITS*1)) | (JSWAT_JSVARFLOAT << (JSWAT_BITS*2))}
 };
 static const unsigned char jswSymbolIndex_Pin_proto = 20;
-/*static const JswSymPtr jswSymbols_Waveform_proto[] = {
+static const JswSymPtr jswSymbols_Waveform_proto[] = {
   {0, (void (*)(void))jswrap_waveform_startInput, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_PIN << (JSWAT_BITS*1)) | (JSWAT_JSVARFLOAT << (JSWAT_BITS*2)) | (JSWAT_JSVAR << (JSWAT_BITS*3))},
   {11, (void (*)(void))jswrap_waveform_startOutput, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_PIN << (JSWAT_BITS*1)) | (JSWAT_JSVARFLOAT << (JSWAT_BITS*2)) | (JSWAT_JSVAR << (JSWAT_BITS*3))},
   {23, (void (*)(void))jswrap_waveform_stop, JSWAT_VOID | JSWAT_THIS_ARG}
@@ -650,7 +652,7 @@ static const JswSymPtr jswSymbols_SPI_proto[] = {
   {14, (void (*)(void))jswrap_spi_send8bit, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_INT32 << (JSWAT_BITS*2)) | (JSWAT_INT32 << (JSWAT_BITS*3)) | (JSWAT_PIN << (JSWAT_BITS*4))},
   {23, (void (*)(void))jswrap_spi_setup, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
   {29, (void (*)(void))jswrap_spi_write, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*1))}
-};*/
+};
 static const unsigned char jswSymbolIndex_SPI_proto = 22;
 static const JswSymPtr jswSymbols_String[] = {
   {0, (void (*)(void))jswrap_string_fromCharCode, JSWAT_JSVAR | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*1))}
@@ -714,32 +716,40 @@ static const JswSymPtr jswSymbols_process[] = {
 };
 static const unsigned char jswSymbolIndex_process = 29;
 
+/*static const JswSymPtr jswSymbols_arguments[] = {
+	{0, (void (*)(void))jswrap_arguments_callee, JSWAT_JSVAR | JSWAT_THIS_ARG | JSWAT_EXECUTE_IMMEDIATELY}
+};
+static const unsigned char jswSymbolIndex_arguments = 30;
+*/
 
 const JswSymList jswSymbolTables[] = {
 // EDIT //
-//  {jswSymbols_I2C_proto, 3, "readFrom\0setup\0writeTo\0"},
+  {jswSymbols_I2C_proto, 3, "readFrom\0setup\0writeTo\0"},
   {jswSymbols_Date_proto, 13, "getDate\0getDay\0getFullYear\0getHours\0getMilliseconds\0getMinutes\0getMonth\0getSeconds\0getTime\0getTimezoneOffset\0toString\0toUTCString\0valueOf\0"},
   {jswSymbols_E, 18, "FFT\0clip\0convolve\0dumpTimers\0enableWatchdog\0getAnalogVRef\0getErrorFlags\0getSizeOf\0getTemperature\0interpolate\0interpolate2d\0nativeCall\0reverseByte\0sum\0toArrayBuffer\0toString\0toUint8Array\0variance\0"},
   {jswSymbols_String_proto, 12, "charAt\0charCodeAt\0indexOf\0lastIndexOf\0length\0replace\0slice\0split\0substr\0substring\0toLowerCase\0toUpperCase\0"},
-//  {jswSymbols_OneWire_proto, 7, "read\0reset\0search\0search\0select\0skip\0write\0"},
+  {jswSymbols_OneWire_proto, 7, "read\0reset\0search\0search\0select\0skip\0write\0"},
   {jswSymbols_Serial, 0, ""},
   {jswSymbols_JSON, 2, "parse\0stringify\0"},
   {jswSymbols_global, 85, "Array\0ArrayBuffer\0ArrayBufferView\0Boolean\0Date\0E\0Error\0Float32Array\0Float64Array\0Function\0HIGH\0Hardware\0I2C\0Infinity\0Int16Array\0Int32Array\0Int8Array\0InternalError\0JSON\0LOW\0LoopbackA\0LoopbackB\0Math\0Modules\0NaN\0Number\0Object\0OneWire\0Pin\0SPI\0Serial\0Serial1\0String\0SyntaxError\0Uint16Array\0Uint32Array\0Uint8Array\0Uint8ClampedArray\0Waveform\0analogRead\0analogWrite\0arguments\0atob\0btoa\0changeInterval\0clearInterval\0clearTimeout\0clearWatch\0console\0digitalPulse\0digitalRead\0digitalWrite\0dump\0echo\0edit\0eval\0fs\0getPinMode\0getSerial\0getTime\0global\0isNaN\0load\0parseFloat\0parseInt\0peek16\0peek32\0peek8\0pinMode\0poke16\0poke32\0poke8\0print\0process\0require\0reset\0save\0setBusyIndicator\0setDeepSleep\0setInterval\0setSleepIndicator\0setTime\0setTimeout\0setWatch\0trace\0"},
   {jswSymbols_Modules, 4, "addCached\0getCached\0removeAllCached\0removeCached\0"},
   {jswSymbols_Error_proto, 1, "toString\0"},
   {jswSymbols_Object, 4, "create\0getOwnPropertyDescriptor\0getOwnPropertyNames\0keys\0"},
+//10
   {jswSymbols_Serial_proto, 9, "available\0onData\0pipe\0print\0println\0read\0setConsole\0setup\0write\0"},
   {jswSymbols_Array, 1, "isArray\0"},
   {jswSymbols_Number, 5, "MAX_VALUE\0MIN_VALUE\0NEGATIVE_INFINITY\0NaN\0POSITIVE_INFINITY\0"},
   {jswSymbols_Math, 28, "E\0LN10\0LN2\0LOG10E\0LOG2E\0PI\0SQRT1_2\0SQRT2\0abs\0acos\0asin\0atan\0atan2\0ceil\0clip\0cos\0exp\0floor\0log\0max\0min\0pow\0random\0round\0sin\0sqrt\0tan\0wrap\0"},
-//  {jswSymbols_fs, 1, "pipe\0"},
+  {jswSymbols_fs, 1, "pipe\0"},
   {jswSymbols_InternalError_proto, 1, "toString\0"},
   {jswSymbols_Object_proto, 8, "clone\0emit\0hasOwnProperty\0length\0on\0removeAllListeners\0toString\0valueOf\0"},
-  {jswSymbols_Function_proto, 3, "apply\0call\0replaceWith\0"},
+//  {jswSymbols_Function_proto, 6, "apply\0arguments\0bind\0call\0caller\0replaceWith\0"},
+  {jswSymbols_Function_proto, 3, "apply\0call\0replaceWith\0"},// ADDED bind, caller, arguments
   {jswSymbols_Date, 2, "now\0parse\0"},
   {jswSymbols_Pin_proto, 5, "read\0reset\0set\0write\0writeAtTime\0"},
-//  {jswSymbols_Waveform_proto, 3, "startInput\0startOutput\0stop\0"},
-//  {jswSymbols_SPI_proto, 5, "send\0send4bit\0send8bit\0setup\0write\0"},
+//20
+  {jswSymbols_Waveform_proto, 3, "startInput\0startOutput\0stop\0"},
+  {jswSymbols_SPI_proto, 5, "send\0send4bit\0send8bit\0setup\0write\0"},
   {jswSymbols_String, 1, "fromCharCode\0"},
   {jswSymbols_SyntaxError_proto, 1, "toString\0"},
   {jswSymbols_ArrayBufferView_proto, 13, "buffer\0byteLength\0byteOffset\0fill\0forEach\0indexOf\0join\0map\0reduce\0reverse\0set\0slice\0sort\0"},
@@ -747,10 +757,16 @@ const JswSymList jswSymbolTables[] = {
   {jswSymbols_console, 1, "log\0"},
   {jswSymbols_Array_proto, 20, "concat\0every\0fill\0filter\0forEach\0indexOf\0join\0length\0map\0pop\0push\0reduce\0reverse\0shift\0slice\0some\0sort\0splice\0toString\0unshift\0"},
   {jswSymbols_process, 3, "env\0memory\0version\0"},
+//  {jswSymbols_arguments, 3, "callee\0"},
+//30
 };
 
-
+const char *jsVarToString(JsVar *jsVar);
 JsVar *jswFindBuiltInFunction(JsVar *parent, const char *name) {
+	// HERE
+//	os_printf("jswFindBuiltInFunction %s\n", name);
+//	os_printf("parent %s\n", jsVarToString(parent));
+
   JsVar *v;
   if (parent && !jsvIsRoot(parent)) {
     // ------------------------------------------ INSTANCE + STATIC METHODS
@@ -788,13 +804,12 @@ JsVar *jswFindBuiltInFunction(JsVar *parent, const char *name) {
       } else if ((void*)parent->varData.native.ptr==(void*)jswrap_string_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_String], parent, name);
         if (v) return v;
-// EDIT //
-/*	  } else if ((void*)parent->varData.native.ptr==(void*)gen_jswrap_console_console) {
+	  } else if ((void*)parent->varData.native.ptr==(void*)gen_jswrap_console_console) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_console], parent, name);
         if (v) return v;
       } else if ((void*)parent->varData.native.ptr==(void*)gen_jswrap_process_process) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_process], parent, name);
-        if (v) return v;*/
+        if (v) return v;
       }
     }
     if (jsvIsString(parent)) {
@@ -813,15 +828,14 @@ JsVar *jswFindBuiltInFunction(JsVar *parent, const char *name) {
       v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_ArrayBufferView_proto], parent, name);
       if (v) return v;
     }
-// EDIT //
-/*	  if (jsvIsInt(parent) || jsvIsFloat(parent)) {
+	  if (jsvIsInt(parent) || jsvIsFloat(parent)) {
       v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_Number_proto], parent, name);
       if (v) return v;
     }
     if (jsvIsArray(parent)) {
       v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_Array_proto], parent, name);
       if (v) return v;
-    }*/
+    }
     // ------------------------------------------ INSTANCE METHODS WE MUST CHECK CONSTRUCTOR FOR
     JsVar *proto = jsvIsObject(parent)?jsvSkipNameAndUnLock(jsvFindChildFromString(parent, JSPARSE_INHERITS_VAR, false)):0;
     JsVar *constructor = jsvIsObject(proto)?jsvSkipNameAndUnLock(jsvFindChildFromString(proto, JSPARSE_CONSTRUCTOR_VAR, false)):0;
@@ -835,10 +849,9 @@ JsVar *jswFindBuiltInFunction(JsVar *parent, const char *name) {
       } else if (constructorPtr==(void*)jswrap_date_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_Date_proto], parent, name);
         if (v) return v;
-// EDIT //
-/*      } else if (constructorPtr==(void*)jswrap_onewire_constructor) {
+      } else if (constructorPtr==(void*)jswrap_onewire_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_OneWire_proto], parent, name);
-        if (v) return v;*/
+        if (v) return v;
       } else if (constructorPtr==(void*)jswrap_error_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_Error_proto], parent, name);
         if (v) return v;
@@ -848,13 +861,12 @@ JsVar *jswFindBuiltInFunction(JsVar *parent, const char *name) {
       } else if (constructorPtr==(void*)jswrap_internalerror_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_InternalError_proto], parent, name);
         if (v) return v;
-// EDIT //
-/*      } else if (constructorPtr==(void*)jswrap_waveform_constructor) {
+      } else if (constructorPtr==(void*)jswrap_waveform_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_Waveform_proto], parent, name);
         if (v) return v;
       } else if (constructorPtr==(void*)jswrap_spi_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_SPI_proto], parent, name);
-        if (v) return v;*/
+        if (v) return v;
       } else if (constructorPtr==(void*)jswrap_syntaxerror_constructor) {
         v = jswBinarySearch(&jswSymbolTables[jswSymbolIndex_SyntaxError_proto], parent, name);
         if (v) return v;
@@ -879,49 +891,52 @@ JsVar *jswFindBuiltInFunction(JsVar *parent, const char *name) {
 
 
 const JswSymList *jswGetSymbolListForObject(JsVar *parent) {
+	// HERE
+//	os_printf("jswGetSymbolListForObject\n");
+
   if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_E_E) return &jswSymbolTables[jswSymbolIndex_E];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_Serial_Serial) return &jswSymbolTables[jswSymbolIndex_Serial];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_JSON_JSON) return &jswSymbolTables[jswSymbolIndex_JSON];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_Modules_Modules) return &jswSymbolTables[jswSymbolIndex_Modules];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_Object_Object) return &jswSymbolTables[jswSymbolIndex_Object];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)jswrap_array_constructor) return &jswSymbolTables[jswSymbolIndex_Array];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)jswrap_number_constructor) return &jswSymbolTables[jswSymbolIndex_Number];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_Math_Math) return &jswSymbolTables[jswSymbolIndex_Math];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_fs_fs) return &jswSymbolTables[jswSymbolIndex_fs];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)jswrap_date_constructor) return &jswSymbolTables[jswSymbolIndex_Date];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)jswrap_string_constructor) return &jswSymbolTables[jswSymbolIndex_String];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_console_console) return &jswSymbolTables[jswSymbolIndex_console];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   if (jsvIsNativeFunction(parent) && (void*)parent->varData.native.ptr==(void*)gen_jswrap_process_process) return &jswSymbolTables[jswSymbolIndex_process];
-  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
+//  if (parent==execInfo.root) return &jswSymbolTables[jswSymbolIndex_global];
   return 0;
 }
 
@@ -941,14 +956,12 @@ const JswSymList *jswGetSymbolListForObjectProto(JsVar *parent) {
    jsvUnLock(constructor);
     if (constructorPtr==(void*)gen_jswrap_I2C_I2C) return &jswSymbolTables[jswSymbolIndex_I2C_proto];
     if (constructorPtr==(void*)jswrap_date_constructor) return &jswSymbolTables[jswSymbolIndex_Date_proto];
-// EDIT //
-//    if (constructorPtr==(void*)jswrap_onewire_constructor) return &jswSymbolTables[jswSymbolIndex_OneWire_proto];
+    if (constructorPtr==(void*)jswrap_onewire_constructor) return &jswSymbolTables[jswSymbolIndex_OneWire_proto];
     if (constructorPtr==(void*)jswrap_error_constructor) return &jswSymbolTables[jswSymbolIndex_Error_proto];
     if (constructorPtr==(void*)gen_jswrap_Serial_Serial) return &jswSymbolTables[jswSymbolIndex_Serial_proto];
     if (constructorPtr==(void*)jswrap_internalerror_constructor) return &jswSymbolTables[jswSymbolIndex_InternalError_proto];
-// EDIT //
-//        if (constructorPtr==(void*)jswrap_waveform_constructor) return &jswSymbolTables[jswSymbolIndex_Waveform_proto];
-//    if (constructorPtr==(void*)jswrap_spi_constructor) return &jswSymbolTables[jswSymbolIndex_SPI_proto];
+    if (constructorPtr==(void*)jswrap_waveform_constructor) return &jswSymbolTables[jswSymbolIndex_Waveform_proto];
+    if (constructorPtr==(void*)jswrap_spi_constructor) return &jswSymbolTables[jswSymbolIndex_SPI_proto];
     if (constructorPtr==(void*)jswrap_syntaxerror_constructor) return &jswSymbolTables[jswSymbolIndex_SyntaxError_proto];
   }
   return &jswSymbolTables[jswSymbolIndex_Object_proto];
@@ -956,6 +969,8 @@ const JswSymList *jswGetSymbolListForObjectProto(JsVar *parent) {
 
 
 bool jswIsBuiltInObject(const char *name) {
+//	os_printf("jswIsBuiltInObject %s\n", name);
+
   return
 strcmp(name, "Array")==0 ||
     strcmp(name, "ArrayBuffer")==0 ||
@@ -996,6 +1011,8 @@ strcmp(name, "Array")==0 ||
 
 
 void *jswGetBuiltInLibrary(const char *name) {
+//	os_printf("jswGetBuiltInLibrary %s\n", name);
+
 if (strcmp(name, "Pipe")==0) return (void*)gen_jswrap_Pipe_Pipe;
   return 0;
 }
@@ -1003,6 +1020,8 @@ if (strcmp(name, "Pipe")==0) return (void*)gen_jswrap_Pipe_Pipe;
 
 /** Given a variable, return the basic object name of it */
 const char *jswGetBasicObjectName(JsVar *var) {
+//	os_printf("jswGetBasicObjectName\n");
+
   if (jsvIsFunction(var)) return "Function";
   if (jsvIsArrayBuffer(var) && var->varData.arraybuffer.type==ARRAYBUFFERVIEW_INT32) return "Int32Array";
   if (jsvIsArrayBuffer(var) && var->varData.arraybuffer.type==(ARRAYBUFFERVIEW_UINT8|ARRAYBUFFERVIEW_CLAMPED)) return "Uint8ClampedArray";
@@ -1026,6 +1045,8 @@ const char *jswGetBasicObjectName(JsVar *var) {
 
 /** Given the name of a Basic Object, eg, Uint8Array, String, etc. Return the prototype object's name - or 0. */
 const char *jswGetBasicObjectPrototypeName(const char *objectName) {
+//	os_printf("jswGetBasicObjectPrototypeName %s\n", objectName);
+
   if (!strcmp(objectName, "Uint8Array")) return "ArrayBufferView";
   if (!strcmp(objectName, "Uint8ClampedArray")) return "ArrayBufferView";
   if (!strcmp(objectName, "Int8Array")) return "ArrayBufferView";
@@ -1038,27 +1059,19 @@ const char *jswGetBasicObjectPrototypeName(const char *objectName) {
   return strcmp(objectName,"Object") ? "Object" : 0;
 }
 
-
 /** Tasks to run on Idle. Returns true if either one of the tasks returned true (eg. they're doing something and want to avoid sleeping) */
 bool jswIdle() {
-  bool wasBusy = false;
-// EDIT //
-//      if (jswrap_pipe_idle()) wasBusy = true;
-//  if (jswrap_waveform_idle()) wasBusy = true;
-  return wasBusy;
+  return
+    jswrap_pipe_idle() |
+    jswrap_waveform_idle();
 }
-
 
 /** Tasks to run on Initialisation */
 void jswInit() {
 }
 
-
 /** Tasks to run on Deinitialisation */
 void jswKill() {
-// EDIT //
-//      jswrap_pipe_kill();
-//  jswrap_waveform_kill();
+  jswrap_pipe_kill();
+  jswrap_waveform_kill();
 }
-
-
