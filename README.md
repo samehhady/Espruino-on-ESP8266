@@ -18,3 +18,9 @@ gpio2.write(!gpio2.read());
 # How to run?
 
 esptool.py --port /dev/ttyUSB0 write_flash 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin
+
+# How to upload & run JavaScript code?
+
+Customize your code in js/main.js and flash it:
+
+esptool.py --port /dev/ttyUSB0 write_flash 0x60000 ./js/main.js
