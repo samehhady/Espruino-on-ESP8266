@@ -80,6 +80,8 @@ FW_FILE_1_ARGS	= -bo $@ -bs .text -bs .data -bs .rodata -bc -ec
 FW_FILE_2	= 0x10000
 FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 
+JS_FILE	= ./js/main.js
+
 # select which tools to use as compiler, librarian and linker
 CC		:= $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-gcc
 AR		:= $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-ar
@@ -167,6 +169,11 @@ flash: $(FW_FILE_1) $(FW_FILE_2)
 	$(Q) [ $(ESPDELAY) -ne 0 ] && echo "Please put the ESP in bootloader mode..." || true
 	$(Q) sleep $(ESPDELAY) || true
 	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin
+
+js: $(JS_FILE)
+	$(Q) [ $(ESPDELAY) -ne 0 ] && echo "Please put the ESP in bootloader mode..." || true
+	$(Q) sleep $(ESPDELAY) || true
+	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x60000 $(JS_FILE)
 
 #webpages.espfs: html/ html/wifi/ mkespfsimage/mkespfsimage
 webpages: html/ html/wifi/ mkespfsimage/mkespfsimage
