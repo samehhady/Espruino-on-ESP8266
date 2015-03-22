@@ -8,8 +8,9 @@ To do:
 - Implement file system for loading JS files from flash.
 
 Current status:
-- Basic functionality for gpio Pins manipulation is implemented.
-- It will evaluate JS code from serial port (115200 baud).
+- Upload and run main.js (flash memory address 0x60000)
+- Evaluate JS code from serial port (115200 baud).
+- GPIO functionality implemented.
 
 Example - toggle GPIO2:
 var gpio2 = new Pin(2);
