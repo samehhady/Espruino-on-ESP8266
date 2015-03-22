@@ -63,7 +63,7 @@ JsVar *jswrap_object_length(JsVar *parent) {
   } else if (jsvIsString(parent)) {
     l = (JsVarInt)jsvGetStringLength(parent);
   } else if (jsvIsFunction(parent)) {
-    JsVar *args = jsvGetFunctionArgumentLength(parent);
+    JsVar *args = jsvCreateFunctionArguments(parent, 0);
     l = jsvGetArrayLength(args);
     jsvUnLock(args);
   } else
@@ -627,4 +627,32 @@ JsVar *jswrap_function_apply_or_call(JsVar *parent, JsVar *thisArg, JsVar *argsA
   JsVar *r = jspeFunctionCall(parent, 0, thisArg, false, (int)argC, args);
   for (i=0;i<argC;i++) jsvUnLock(args[i]);
   return r;
+}
+
+const char *jsVarToString(JsVar *jsVar);
+
+JsVar *jswrap_function_bind(JsVar *parent, JsVar *thisArg, JsVar *argsArray) {
+	JsVar *arguments = jsvCreateFunctionArguments(parent, parent);
+	JsVar *vars[] = {parent,thisArg,argsArray,arguments};
+	JsVar *ret = jsvNewArray(vars, 4);
+	jsvUnLock(arguments);
+	return ret;
+}
+
+JsVar *jswrap_function_caller(JsVar *parent) {
+	os_printf("caller: %s", jsVarToString(parent));
+	for (int n = execInfo.scopeCount; n>1;) {
+		if (parent == execInfo.scopes[--n])
+			return jsvLockAgain(execInfo.scopes[n-1]);
+	}
+	return 0;
+}
+
+JsVar *jswrap_function_arguments(JsVar *parent) {
+	os_printf("arguments: %s", jsVarToString(parent));
+	for (int n = execInfo.scopeCount; n>0;) {
+		if (parent == execInfo.scopes[--n])
+			return jsvCreateFunctionArguments(execInfo.scopes[n], parent);
+	}
+	return 0;
 }

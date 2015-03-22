@@ -614,17 +614,12 @@ static const JswSymPtr jswSymbols_Object_proto[] = {
 };
 static const unsigned char jswSymbolIndex_Object_proto = 17;
 static const JswSymPtr jswSymbols_Function_proto[] = {
-  {0, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
-  {6, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))},
-  {11, (void (*)(void))jswrap_function_replaceWith, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
-/*
  {0, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_JSVAR << (JSWAT_BITS*2))},
  {6, (void (*)(void))jswrap_function_arguments, JSWAT_JSVAR | JSWAT_THIS_ARG | JSWAT_EXECUTE_IMMEDIATELY},
  {16, (void (*)(void))jswrap_function_bind, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))},
  {21, (void (*)(void))jswrap_function_apply_or_call, JSWAT_JSVAR | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1)) | (JSWAT_ARGUMENT_ARRAY << (JSWAT_BITS*2))},
  {26, (void (*)(void))jswrap_function_caller, JSWAT_JSVAR | JSWAT_THIS_ARG | JSWAT_EXECUTE_IMMEDIATELY},
  {33, (void (*)(void))jswrap_function_replaceWith, JSWAT_VOID | JSWAT_THIS_ARG | (JSWAT_JSVAR << (JSWAT_BITS*1))},
-*/
 };
 static const unsigned char jswSymbolIndex_Function_proto = 18;
 static const JswSymPtr jswSymbols_Date[] = {
@@ -743,8 +738,7 @@ const JswSymList jswSymbolTables[] = {
   {jswSymbols_fs, 1, "pipe\0"},
   {jswSymbols_InternalError_proto, 1, "toString\0"},
   {jswSymbols_Object_proto, 8, "clone\0emit\0hasOwnProperty\0length\0on\0removeAllListeners\0toString\0valueOf\0"},
-//  {jswSymbols_Function_proto, 6, "apply\0arguments\0bind\0call\0caller\0replaceWith\0"},
-  {jswSymbols_Function_proto, 3, "apply\0call\0replaceWith\0"},// ADDED bind, caller, arguments
+  {jswSymbols_Function_proto, 6, "apply\0arguments\0bind\0call\0caller\0replaceWith\0"},
   {jswSymbols_Date, 2, "now\0parse\0"},
   {jswSymbols_Pin_proto, 5, "read\0reset\0set\0write\0writeAtTime\0"},
 //20

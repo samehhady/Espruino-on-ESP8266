@@ -1503,7 +1503,7 @@ JsVar *jsvArrayBufferGetFromName(JsVar *name) {
 }
 
 
-JsVar *jsvGetFunctionArgumentLength(JsVar *functionScope) {
+JsVar *jsvCreateFunctionArguments(JsVar *functionScope, JsVar *function) {
   JsVar *args = jsvNewWithFlags(JSV_ARRAY);
   if (!args) return 0; // out of memory
 
@@ -1519,6 +1519,8 @@ JsVar *jsvGetFunctionArgumentLength(JsVar *functionScope) {
     jsvObjectIteratorNext(&it);
   }
   jsvObjectIteratorFree(&it);
+
+  if (function) jsvAddNamedChild(args, jsvLockAgain(function), "callee");
 
   return args;
 }
@@ -1833,6 +1835,7 @@ void jsvAddName(JsVar *parent, JsVar *namedChild) {
 }
 
 JsVar *jsvAddNamedChild(JsVar *parent, JsVar *child, const char *name) {
+//	os_printf("jsvAddNamedChild %s\n", name);
   JsVar *namedChild = jsvMakeIntoVariableName(jsvNewFromString(name), child);
   if (!namedChild) return 0; // Out of memory
   jsvAddName(parent, namedChild);
@@ -1840,6 +1843,7 @@ JsVar *jsvAddNamedChild(JsVar *parent, JsVar *child, const char *name) {
 }
 
 JsVar *jsvSetNamedChild(JsVar *parent, JsVar *child, const char *name) {
+//	os_printf("jsvSetNamedChild %s\n", name);
   JsVar *namedChild = jsvFindChildFromString(parent, name, true);
   if (namedChild) // could be out of memory
     return jsvSetValueOfName(namedChild, child);

@@ -37,7 +37,7 @@ JsVar *jswrap_arguments() {
     return 0;
   }
 
-  return jsvGetFunctionArgumentLength(scope);
+  return jsvCreateFunctionArguments(scope, 0);
 }
 
 

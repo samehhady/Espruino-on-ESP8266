@@ -467,7 +467,7 @@ void jsvArrayBufferSet(JsVar *arrayBuffer, size_t index, JsVar *value);
 JsVar *jsvArrayBufferGetFromName(JsVar *name);
 
 /** Return an array containing the arguments of the given function */
-JsVar *jsvGetFunctionArgumentLength(JsVar *function);
+JsVar *jsvCreateFunctionArguments(JsVar *functionScope, JsVar *function);
 
 /** If a is a name skip it and go to what it points to - and so on.
  * ALWAYS locks - so must unlock what it returns. It MAY
