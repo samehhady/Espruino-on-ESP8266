@@ -12,6 +12,8 @@
 
 #include "jsvar.h"
 #include "jswrap_functions.h"
+#include "spi_flash.h"
+
 
 // error handler for pure virtual calls
 void __cxa_pure_virtual() { while (1); }
@@ -169,7 +171,20 @@ void ICACHE_RAM_ATTR user_init(void) {
 	jsvUnLock(result);
 	
 	 */
-	
+	JsVar *jsMain = jsvNewFromEmptyString();
+	uint32_t c;
+	for (int addr = 0x60000;; addr++) {
+		if (SPI_FLASH_RESULT_OK != spi_flash_read(addr, &c, 1)) {
+			os_printf("error reading flash\n");
+			break;
+		}
+		if (255 == c) break; // (uint8_t)(-1)
+		os_printf("%c", c);
+		jsvAppendStringBuf(jsMain, (char *)(&c), 1);
+	}
+	os_printf("Main:\n%s", jsVarToString(jsMain));
+	JsVar *jsResult = jswrap_eval(jsMain);
+	os_printf("%s\n\n", jsVarToString(jsResult));
 	
 	while (true) {
 		char c;
