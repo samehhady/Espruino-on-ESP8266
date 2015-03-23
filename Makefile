@@ -9,7 +9,8 @@
 # Output directors to store intermediate compiled files
 # relative to the project directory
 BUILD_BASE	= build
-FW_BASE		= firmware
+FW_BASE	= firmware
+JS_BASE	= scripts
 
 # Base directory for the compiler. Needs a / at the end; if not set it'll use the tools that are in
 # the PATH.
@@ -79,8 +80,7 @@ FW_FILE_1	= 0x00000
 FW_FILE_1_ARGS	= -bo $@ -bs .text -bs .data -bs .rodata -bc -ec
 FW_FILE_2	= 0x10000
 FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
-
-JS_FILE	= ./js/main.js
+JS_FILE	= main
 
 # select which tools to use as compiler, librarian and linker
 CC		:= $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-gcc
@@ -113,6 +113,7 @@ MODULE_INCDIR	:= $(addsuffix /include,$(INCDIR))
 
 FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1).bin)
 FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2).bin)
+JS_FILE :=$(addprefix $(JS_BASE)/,$(JS_FILE).js)
 
 V ?= $(VERBOSE)
 ifeq ("$(V)","1")
