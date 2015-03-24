@@ -24,7 +24,8 @@
 #include "jspininfo.h"
 
 #ifdef LINUX
-#include <inttypes.h>
+//#include <inttypes.h>
+#include <c_types.h>
 #endif
 
 void jshInit();

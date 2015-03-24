@@ -174,7 +174,8 @@ flash: $(FW_FILE_1) $(FW_FILE_2)
 js: $(JS_FILE)
 	$(Q) [ $(ESPDELAY) -ne 0 ] && echo "Please put the ESP in bootloader mode..." || true
 	$(Q) sleep $(ESPDELAY) || true
-	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x60000 $(JS_FILE)
+#	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x60000 $(JS_FILE)
+	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x60000 $(JS_BASE)/$(filter-out $@,$(MAKECMDGOALS)).js
 
 #webpages.espfs: html/ html/wifi/ mkespfsimage/mkespfsimage
 webpages: html/ html/wifi/ mkespfsimage/mkespfsimage

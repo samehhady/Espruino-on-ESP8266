@@ -5,7 +5,6 @@
 #include "stdout.h"
 #include "uart.h"
 
-// JS begin
 #include "platform_config.h"
 #include "jsinteractive.h"
 #include "jshardware.h"
@@ -19,19 +18,10 @@
 void __cxa_pure_virtual() { while (1); }
 
 void jsInit() {
-	os_printf("jshInit\n");
     jshInit();
-	os_printf("jsvInit\n");
     jsvInit();
-	os_printf("jsiInit\n");
     jsiInit(true);
-
-//    while (1) {
-//        jsiLoop();
-	
-    // js*Kill()
 }
-// JS end
 
 /*
  void vApplicationMallocFailedHook( void );
@@ -60,7 +50,7 @@ const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
 	static char *str = NULL;
 	static size_t size = 0;
 	if (!str) str = malloc(size = len+32);
-	else if (size < len) {
+	else if (size < len+1) {
 		free(str);
 		str = malloc(size = len+32);
 	}
@@ -68,152 +58,88 @@ const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
 	str[len] = 0;
 	return str ? str : "undefined";
 }
-void jsVar() {
-	JsVar *jsString = jsvNewFromString("It works!");
-	
-	os_printf("jsvGetTypeOf: %s\n", jsvGetTypeOf(jsString));
-//	os_printf("jsvGetFlatStringPointer: %s\n", jsvGetFlatStringPointer(jsString));
-	os_printf("jsvGetStringLength: %d\n", jsvGetStringLength(jsString));
-	os_printf("jsvIsStringEqual (true): %d\n", jsvIsStringEqual(jsString, "It works!"));
-	os_printf("jsvIsStringEqual (false): %d\n", jsvIsStringEqual(jsString, "It works again!"));
-
-	os_printf("\n");
-	os_printf("jsVarToString: %s\n", jsVarToString(jsString));
-	os_printf("jsVarToString (1): %s\n", jsVarToString(jsvNewFromInteger(1)));
-	os_printf("jsVarToString (0.1): %s\n", jsVarToString(jsvNewFromFloat(0.1)));
-	os_printf("jsVarToString (true): %s\n", jsVarToString(jsvNewFromBool(true)));
-}
-
-static const char *code[] = {
-	"'It works!'",
-	"NULL || 'It works!'",
-	"(function() {return 'It works!'; }())",
-	"(function() {return 'It works!'; })()",
-	"(function(a) {return a; })('It works!')",
-	"console.log('It works!');"
-};
-void ICACHE_RAM_ATTR jsEval(int n) {
-	if (5 < n) return;
-	os_printf("\n----- jsEval %d: -----\n\n", n);
-	JsVar *jsCode = jsvNewFromString(code[n]); os_printf("jsCode:\n\n%s\n\n", jsVarToString(jsCode));
-	JsVar *jsResult = jswrap_eval(jsCode); os_printf("jsResult:\n\n%s\n\n", jsVarToString(jsResult));
-}
 
 extern UartDevice UartDev;
-//extern int uartRecvCounter;
 
-void ICACHE_RAM_ATTR onTimer(void *arg) {
+/*void ICACHE_RAM_ATTR onTimer(void *arg) {
 	static int state = 0;
 	jsEval(state++);
 	jsiLoop();
-
-/*	char c = uart_getc();
-
-	os_printf("%d, %d, %d, %p, %p, %p, %c\n\r",
-			  UartDev.baut_rate,
-			  UartDev.rcv_buff.RcvBuffSize,
-			  UartDev.rcv_buff.BuffState,
-			  UartDev.rcv_buff.pRcvMsgBuff,
-			  UartDev.rcv_buff.pWritePos,
-			  UartDev.rcv_buff.pReadPos,
-			  c
-//			  uartRecvCounter
-	);*/
 }
-
 void runTimer() {
 	static ETSTimer timer;
 	os_timer_setfn(&timer, onTimer, NULL);
 	os_timer_arm(&timer, 1000, true);
-}
-//void uart_init(UartBautRate uart0_br, UartBautRate uart1_br)
-//void uart0_tx_buffer(uint8_t *buffer, uint16_t length);
+}*/
 
-//void uart0_rx_intr_handler(void *param) { // RcvMsgBuff *
-	
-//}
+void writeToFlash(JsVar *jsCode) {
+	if (!jsCode) return;
+	const char *code = jsVarToString(jsCode);
+	int error;
+	int addr = 0x60000;
+	int sector = addr/SPI_FLASH_SEC_SIZE;
+	int to = addr + strlen(code)+1;
+	while (addr < to) {
+		spi_flash_erase_sector(sector);
+		if (SPI_FLASH_RESULT_OK != (error = spi_flash_write(addr, (uint32 *)code, SPI_FLASH_SEC_SIZE))) {
+			os_printf("\nwriteToFlash error %d\n", error);
+		}
+		addr += SPI_FLASH_SEC_SIZE;
+		code += SPI_FLASH_SEC_SIZE;
+		sector++;
+	}
+}
 
 void ICACHE_RAM_ATTR user_init(void) {
-//	ets_delay_us(1000);
-	uart_init(BIT_RATE_115200, BIT_RATE_115200);
-//	ets_delay_us(1000);
+	uart_init(BIT_RATE_115200, 0);
 
 	jsInit();
-	jsVar();
 
-//	os_printf("user_init\n");
-//	uart0_sendStr("uart0_sendStr\n");
+	os_printf("\nReady\n");
 	
-//    stdoutInit();
-	os_printf("Ready\n");
-	
-	runTimer();
-//	static JsVar *jsReceive = NULL;
-//	jsReceive =
-	//jsvNewFromString("");
-/*	jsEval(0);
-	jsEval(1);
-	int n = 0;
-	os_printf("\n----- jsEval %d: -----\n\n", n);
-	JsVar *jsCode = jsvNewFromString(code[n]); os_printf("jsCode:\n\n%s\n\n", jsVarToString(jsCode));
-	JsVar *jsResult = jswrap_eval(jsCode); os_printf("jsResult:\n\n%s\n\n", jsVarToString(jsResult));
-*/
-	/*
-  jsvUnLock(jspEvaluate(buffer, true));
-	 
-  isRunning = true;
-  bool isBusy = true;
-  while (isRunning && (jsiHasTimers() || isBusy))
-	 isBusy = jsiLoop();
-	 
-  JsVar *result = jsvObjectGetChild(execInfo.root, "result", 0);//no create
-	bool pass = jsvGetBool(result);
-	jsvUnLock(result);
-	
-	 */
-	JsVar *jsMain = jsvNewFromEmptyString();
-	uint32_t c;
-	for (int addr = 0x60000;; addr++) {
-		if (SPI_FLASH_RESULT_OK != spi_flash_read(addr, &c, 1)) {
-			os_printf("error reading flash\n");
+//	runTimer();
+
+	os_printf("\nRead from flash:\n");
+	char c;
+	int error;
+	int addr;
+	JsVar *jsCode = jsvNewFromEmptyString();
+	for (addr = 0x60000;; addr++) {
+		if (SPI_FLASH_RESULT_OK != (error = spi_flash_read(addr, (uint32 *)&c, 1))) {
+			os_printf("\nerror %d\n", error);
+			jsvUnLock(jsCode);
+			jsCode = NULL;
 			break;
 		}
-		if (255 == c) break; // (uint8_t)(-1)
-		os_printf("%c", c);
-		jsvAppendStringBuf(jsMain, (char *)(&c), 1);
+		if (0x80 & c || 0 == c) break; // allow ascii only
+		jsvAppendStringBuf(jsCode, &c, 1);
+		uart0_putc(c);
 	}
-	os_printf("Main:\n%s", jsVarToString(jsMain));
-	JsVar *jsResult = jswrap_eval(jsMain);
-	os_printf("%s\n\n", jsVarToString(jsResult));
+	if (jsCode && 0x60000 < addr) {
+//		os_printf("\n%s\n", jsVarToString(jsCode));
+		JsVar *jsResult = jswrap_eval(jsCode);
+		jsvUnLock(jsCode); jsCode = NULL;
+		os_printf("\nResult: %s\n", jsVarToString(jsResult));
+		jsvUnLock(jsResult); jsResult = NULL;
+	}
 	
+	bool cr = false;
 	while (true) {
-		char c;
-		static bool cr = false;
-		static JsVar *jsReceive = NULL;
 		while ((c = uart_getc())) {
 			uart0_putc(c);
 			if (cr && '\n' == c) {
-//				jswrap_interface_print(jsReceive);
-//				os_printf("code:\n\n%s\n\n", jsVarToString(jsReceive));
-				JsVar *jsResult = jswrap_eval(jsReceive);
-				os_printf("%s\n\n", jsVarToString(jsResult));
-//				jswrap_interface_print(jsResult);
-//				JsVar *jsResult = jspEvaluate(jsReceive);
-//				os_printf("result:\n\n%s\n\n", jsVarToString(jsResult));
-//				jsvUnLock(jsResult);
-//				jsvUnLock(jsReceive);
-				jsReceive = NULL;
-			} else if (!(cr = '\r' == c)) {
-				if (!jsReceive) jsReceive = jsvNewFromEmptyString();
-//				if (!jsReceive) jsReceive = jsvNewWithFlags(JSV_STRING_0);
-//				if (!jsReceive) jsReceive = jsvNewFromString("");
-				jsvAppendStringBuf(jsReceive, &c, 1);
+				if (jsCode) {
+					writeToFlash(jsCode);
+					JsVar *jsResult = jswrap_eval(jsCode);
+					jsvUnLock(jsCode); jsCode = NULL;
+					os_printf("\n%s\n", jsVarToString(jsResult));
+					jsvUnLock(jsResult); jsResult = NULL;
+				}
+			} else if (0 < c && !(cr = '\r' == c)) {
+				if (!jsCode) jsCode = jsvNewFromEmptyString();
+				jsvAppendStringBuf(jsCode, &c, 1);
 			}
 		}
 		jsiLoop();
 	}
-//	ioInit();
-	
-//    jsMain();
 }
-

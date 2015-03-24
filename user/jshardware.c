@@ -134,7 +134,7 @@ static uint8_t function(JshPinState state) {
 	}
 }
 void jshPinSetState(Pin pin, JshPinState state) {
-	os_printf("jshPinSetState %d, %d\n", pin, state);
+//	os_printf("jshPinSetState %d, %d\n", pin, state);
 	
 	assert(pin < 16);
 	int periph = PERIPHS_IO_MUX + PERIPHS[pin];
@@ -169,19 +169,19 @@ void jshPinSetState(Pin pin, JshPinState state) {
 }
 
 JshPinState jshPinGetState(Pin pin) {
-	os_printf("jshPinGetState %d\n", pin);
+//	os_printf("jshPinGetState %d\n", pin);
 
   return JSHPINSTATE_UNDEFINED;
 }
 
 void jshPinSetValue(Pin pin, bool value) {
-	os_printf("jshPinSetValue %d, %d\n", pin, value);
+//	os_printf("jshPinSetValue %d, %d\n", pin, value);
 
   GPIO_OUTPUT_SET(pin, value);
 }
 
 bool jshPinGetValue(Pin pin) {
-	os_printf("jshPinGetValue %d, %d\n", pin, GPIO_INPUT_GET(pin));
+//	os_printf("jshPinGetValue %d, %d\n", pin, GPIO_INPUT_GET(pin));
 
   return GPIO_INPUT_GET(pin);
 }

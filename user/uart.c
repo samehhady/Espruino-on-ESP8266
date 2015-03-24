@@ -16,6 +16,7 @@
 
 #define UART0   0
 #define UART1   1
+#define _DEBUG
 
 // UartDev is defined and initialized in rom code.
 extern UartDevice UartDev;
@@ -31,9 +32,7 @@ uart0_rx_intr_handler(void *para);
  * Parameters   : uart_no, use UART0 or UART1 defined ahead
  * Returns      : NONE
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-uart_config(uint8 uart_no)
-{
+LOCAL void uart_config(uint8 uart_no) {
     if (uart_no == UART1) {
         PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_U1TXD_BK);
     } else {
@@ -73,18 +72,9 @@ uart_config(uint8 uart_no)
  * Parameters   : uint8 TxChar - character to tx
  * Returns      : OK
 *******************************************************************************/
-STATUS ICACHE_FLASH_ATTR
-uart_tx_one_char(uint8 uart, uint8 TxChar)
-{
-    while (true)
-    {
-      uint32 fifo_cnt = READ_PERI_REG(UART_STATUS(uart)) & (UART_TXFIFO_CNT<<UART_TXFIFO_CNT_S);
-      if ((fifo_cnt >> UART_TXFIFO_CNT_S & UART_TXFIFO_CNT) < 126) {
-        break;
-      }
-    }
-
-    WRITE_PERI_REG(UART_FIFO(uart) , TxChar);
+STATUS uart_tx_one_char(uint8 uart, uint8 c) {
+	while (126 <= ((READ_PERI_REG(UART_STATUS(uart)) & (UART_TXFIFO_CNT<<UART_TXFIFO_CNT_S)) >> UART_TXFIFO_CNT_S & UART_TXFIFO_CNT));
+    WRITE_PERI_REG(UART_FIFO(uart), c);
     return OK;
 }
 
@@ -119,15 +109,10 @@ uart1_write_char(char c)
  *                uint16 len - buffer len
  * Returns      :
 *******************************************************************************/
-void ICACHE_FLASH_ATTR
-uart0_tx_buffer(uint8 *buf, uint16 len)
-{
-  uint16 i;
-
-  for (i = 0; i < len; i++)
-  {
-    uart_tx_one_char(UART0, buf[i]);
-  }
+void uart0_tx_buffer(uint8 *buf, uint16 len) {
+#ifdef _DEBUG
+  for (uint16 i = 0; i < len; i++) uart_tx_one_char(UART0, buf[i]);
+#endif
 }
 
 /******************************************************************************
@@ -137,13 +122,10 @@ uart0_tx_buffer(uint8 *buf, uint16 len)
  *                uint16 len - buffer len
  * Returns      :
 *******************************************************************************/
-void ICACHE_FLASH_ATTR uart0_sendStr(const char *str)
-{
-    while(*str)
-    {
-        // uart_tx_one_char(UART0, *str++);
-        uart0_putc(*str++);
-    }
+void uart0_sendStr(const char *str) {
+#ifdef _DEBUG
+  while(*str) uart0_putc(*str++);
+#endif
 }
 
 /******************************************************************************
@@ -152,20 +134,11 @@ void ICACHE_FLASH_ATTR uart0_sendStr(const char *str)
  * Parameters   : uint8 c - send char
  * Returns      :
 *******************************************************************************/
-void ICACHE_FLASH_ATTR uart0_putc(const char c)
-{
-  if (c == '\n')
-  {
-    uart_tx_one_char(UART0, '\r');
-    uart_tx_one_char(UART0, '\n');
-  }
-  else if (c == '\r')
-  {
-  }
-  else
-  {
-    uart_tx_one_char(UART0, c);
-  }
+void uart0_putc(const char c) {
+#ifdef _DEBUG
+  if (c == '\n') uart_tx_one_char(UART0, '\r');
+  if (c != '\r') uart_tx_one_char(UART0, c);
+#endif
 }
 
 /******************************************************************************
@@ -175,9 +148,7 @@ void ICACHE_FLASH_ATTR uart0_putc(const char c)
  * Parameters   : void *para - point to ETS_UART_INTR_ATTACH's arg
  * Returns      : NONE
 *******************************************************************************/
-LOCAL void
-uart0_rx_intr_handler(void *para)
-{
+LOCAL void ICACHE_RAM_ATTR uart0_rx_intr_handler(void *para) {
     /* uart0 and uart1 intr combine togther, when interrupt occur, see reg 0x3ff20020, bit2, bit0 represents
      * uart1 and uart0 respectively
      */
@@ -226,25 +197,23 @@ uart0_rx_intr_handler(void *para)
  *                UartBautRate uart1_br - uart1 bautrate
  * Returns      : NONE
 *******************************************************************************/
-void ICACHE_FLASH_ATTR
-uart_init(UartBautRate uart0_br, UartBautRate uart1_br)
-{
+void uart_init(UartBautRate uart0_br, UartBautRate uart1_br) {
     // rom use 74880 baut_rate, here reinitialize
-    UartDev.baut_rate = uart0_br;
-    uart_config(UART0);
-    UartDev.baut_rate = uart1_br;
-    uart_config(UART1);
+	if (uart0_br) {
+		UartDev.baut_rate = uart0_br;
+		uart_config(UART0);
+	}
+	if (uart1_br) {
+		UartDev.baut_rate = uart1_br;
+		uart_config(UART1);
+	}
     ETS_UART_INTR_ENABLE();
 
     // install uart1 putc callback
-#ifndef _DEBUG
 	os_install_putc1((void *)uart0_putc);//uart1_write_char);
-#endif
 }
 
-void ICACHE_FLASH_ATTR
-uart_setup(uint8 uart_no)
-{
+void uart_setup(uint8 uart_no) {
     ETS_UART_INTR_DISABLE();
     uart_config(uart_no);
     ETS_UART_INTR_ENABLE();
