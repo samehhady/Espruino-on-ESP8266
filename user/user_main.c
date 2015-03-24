@@ -107,7 +107,8 @@ void ICACHE_RAM_ATTR user_init(void) {
 	for (addr = 0x60000;; addr++) {
 		if (SPI_FLASH_RESULT_OK != (error = spi_flash_read(addr, (uint32 *)&c, 1))) {
 			os_printf("\nerror %d\n", error);
-			jsvUnLock(jsCode);
+			// THIS caused exceptions with jsvUnLocks!
+			//jsvUnLock(jsCode);
 			jsCode = NULL;
 			break;
 		}
@@ -118,9 +119,11 @@ void ICACHE_RAM_ATTR user_init(void) {
 	if (jsCode && 0x60000 < addr) {
 //		os_printf("\n%s\n", jsVarToString(jsCode));
 		JsVar *jsResult = jswrap_eval(jsCode);
-		jsvUnLock(jsCode); jsCode = NULL;
+		//jsvUnLock(jsCode);
+		jsCode = NULL;
 		os_printf("\nResult: %s\n", jsVarToString(jsResult));
-		jsvUnLock(jsResult); jsResult = NULL;
+//		jsvUnLock(jsResult);
+		jsResult = NULL;
 	}
 	
 	bool cr = false;
@@ -131,9 +134,11 @@ void ICACHE_RAM_ATTR user_init(void) {
 				if (jsCode) {
 					writeToFlash(jsCode);
 					JsVar *jsResult = jswrap_eval(jsCode);
-					jsvUnLock(jsCode); jsCode = NULL;
+					//jsvUnLock(jsCode);
+					jsCode = NULL;
 					os_printf("\n%s\n", jsVarToString(jsResult));
-					jsvUnLock(jsResult); jsResult = NULL;
+					//jsvUnLock(jsResult);
+					jsResult = NULL;
 				}
 			} else if (0 < c && !(cr = '\r' == c)) {
 				if (!jsCode) jsCode = jsvNewFromEmptyString();

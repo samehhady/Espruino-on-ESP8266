@@ -1,2 +1,7 @@
+var p = new Pin(2),
+	v = 0;
 
-console.log('It works!');
+setInterval(function() {
+	console.log(v);
+	p.write(v = !v);
+}, 1000);
