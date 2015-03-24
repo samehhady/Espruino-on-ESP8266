@@ -9,7 +9,7 @@ Recent achievements:
 - GPIO functionality implemented.
 
 To do:
-- More hardware specifics. First arming timer for setTimeout, setInterval, sleep, then other IO peripheries, then wifi, dhcp, tcpip, socket, http and then webSocket!
+- More hardware specifics. First arming a timer for setTimeout, setInterval, sleep, deep sleep, then other peripheries, then WiFi, DHCP, TCP/IP, socket, HTTP and then webSocket!
 
 # How to run Espruino on ESP8266?
 esptool.py --port /dev/ttyUSB0 write_flash 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin
