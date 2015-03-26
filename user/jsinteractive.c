@@ -145,17 +145,17 @@ IOEventFlags jsiGetConsoleDevice() {
 
 NO_INLINE void jsiConsolePrintChar(char data) {
 // EDIT //
-	os_printf("%c", data);
-//  jshTransmit(consoleDevice, (unsigned char)data);
+//	os_printf("%c", data);
+	jshTransmit(consoleDevice, (unsigned char)data);
 }
 
 NO_INLINE void jsiConsolePrint(const char *str) {
 // EDIT //
-	os_printf("%s", str);
-//  while (*str) {
-//    if (*str == '\n') jsiConsolePrintChar('\r');
-//    jsiConsolePrintChar(*(str++));
-//  }
+//	os_printf("%s", str);
+  while (*str) {
+    if (*str == '\n') jsiConsolePrintChar('\r');
+    jsiConsolePrintChar(*(str++));
+  }
 }
 
 void jsiConsolePrintf(const char *fmt, ...) {
@@ -209,7 +209,7 @@ void jsiConsolePrintStringVarWithNewLineChar(JsVar *v, size_t fromCharacter, cha
 
 /// Print the contents of a string var - directly
 void jsiConsolePrintStringVar(JsVar *v) {
-  jsiConsolePrintStringVarWithNewLineChar(v,0,0);
+  jsiConsolePrintStringVarWithNewLineChar(v, 0, 0);
 }
 
 /** Assuming that we are at the end of the string, this backs up
@@ -1348,6 +1348,7 @@ void jsiIdle() {
           bool executeNow = false;
           JsVarInt debounce = jsvGetIntegerAndUnLock(jsvObjectGetChild(watchPtr, "debounce", 0));
           if (debounce<=0) {
+			  os_printf("debounce!\n");
             executeNow = true;
           } else { // Debouncing - use timeouts to ensure we only fire at the right time
             // store the current state of the pin
@@ -1361,6 +1362,7 @@ void jsiIdle() {
               if (eventTime > timeoutTime) {
                 // timeout should have fired, but we didn't get around to executing it!
                 // Do it now (with the old timeout time)
+				  os_printf("executeNow = true;\n");
                 executeNow = true;
                 eventTime = timeoutTime - debounce;
                 pinIsHigh = oldWatchState;
@@ -1384,6 +1386,7 @@ void jsiIdle() {
 
           // If we want to execute this watch right now...
           if (executeNow) {
+			  os_printf("a1\n");
             JsVar *timePtr = jsvNewFromFloat(jshGetMillisecondsFromTime(eventTime)/1000);
             if (jsiShouldExecuteWatch(watchPtr, pinIsHigh)) { // edge triggering
               JsVar *watchCallback = jsvObjectGetChild(watchPtr, "callback", 0);
@@ -1463,7 +1466,8 @@ void jsiIdle() {
         if (watchPtr)
           delay = jsvGetIntegerAndUnLock(jsvObjectGetChild(watchPtr, "debounce", 0));
         // Create the 'time' variable that will be passed to the user
-        JsVar *timePtr = jsvNewFromFloat(jshGetMillisecondsFromTime(jsiLastIdleTime+timeUntilNext-delay)/1000);
+		  os_printf("a2\n");
+        JsVar *timePtr = jsvNewFromFloat(jshGetMillisecondsFromTime(jsiLastIdleTime+timeUntilNext-delay)/1000.0f);
         // if it was a watch, set the last state up
         if (watchPtr) {
           bool state = jsvGetBoolAndUnLock(jsvObjectSetChild(data, "state", jsvObjectGetChild(watchPtr, "state", 0)));
@@ -1759,6 +1763,7 @@ void jsiDumpState() {
     JsVar *timerInterval = jsvObjectGetChild(timer, "interval", 0);
     jsiConsolePrint(timerInterval ? "setInterval(" : "setTimeout(");
     jsiDumpJSON(timerCallback, 0);
+	  os_printf("a3\n");
     jsiConsolePrintf(", %f);\n", jshGetMillisecondsFromTime(timerInterval ? jsvGetLongInteger(timerInterval) : jsvGetLongIntegerAndUnLock(jsvObjectGetChild(timer, "time", 0))));
     jsvUnLock(timerInterval);
     jsvUnLock(timerCallback);
@@ -1784,6 +1789,7 @@ void jsiDumpState() {
                      watchPin,
                      watchRecur?"true":"false",
                      (watchEdge<0)?"falling":((watchEdge>0)?"rising":"both"));
+	  os_printf("a4\n");
     if (watchDebounce>0)
       jsiConsolePrintf(", debounce : %f", jshGetMillisecondsFromTime(watchDebounce));
     jsiConsolePrint(" });\n");

@@ -432,6 +432,7 @@ void jstDumpUtilityTimers() {
   unsigned char t = uTimerTasksTail;
   while (t!=uTimerTasksHead) {
     UtilTimerTask task = uTimerTasks[t];
+	  os_printf("a5\n");
     jsiConsolePrintf("%08d us : ", (int)(1000*jshGetMillisecondsFromTime(task.time-jsiLastIdleTime)));
 
     switch (task.type) {

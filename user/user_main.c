@@ -96,7 +96,7 @@ void ICACHE_RAM_ATTR user_init(void) {
 	jsInit();
 
 	os_printf("\nReady\n");
-	
+	os_printf("setTimeout(function() { console.log('timeout!'); }, 1000);\n");
 //	runTimer();
 
 	os_printf("\nRead from flash:\n");

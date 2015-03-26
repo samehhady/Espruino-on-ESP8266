@@ -70,7 +70,13 @@ void jshInitDevices() { // called from jshInit
 // ----------------------------------------------------------------------------
 
 // Queue a character for transmission
+// EDIT //
+void uart0_putc(const char c);
 void jshTransmit(IOEventFlags device, unsigned char data) {
+	if (0x08 == data) return;
+	uart0_putc(data);
+}
+/*void jshTransmit(IOEventFlags device, unsigned char data) {
   if (device==EV_LOOPBACKA || device==EV_LOOPBACKB) {
     jshPushIOCharEvent(device==EV_LOOPBACKB ? EV_LOOPBACKA : EV_LOOPBACKB, (char)data);
     return;
@@ -107,7 +113,7 @@ void jshTransmit(IOEventFlags device, unsigned char data) {
   txHead = txHeadNext;
 
   jshUSARTKick(device); // set up interrupts if required
-}
+}*/
 
 // Return the device at the top of the transmit queue (or EV_NONE)
 IOEventFlags jshGetDeviceToTransmit() {
