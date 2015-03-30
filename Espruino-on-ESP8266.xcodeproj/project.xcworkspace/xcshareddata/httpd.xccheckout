@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>CA841087-3279-4BF0-8AC6-13ADEC51845F</string>
+	<key>IDESourceControlProjectName</key>
+	<string>httpd</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>620178DCFBE952CB26FF7533A153D813877975A9</key>
+		<string>https://github.com/bjpirt/esphttpd</string>
+		<key>F447D8FD8628613559854FA119E997BD0DE92A68</key>
+		<string>https://github.com/atomicobject/heatshrink.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>httpd.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>620178DCFBE952CB26FF7533A153D813877975A9</key>
+		<string>../..</string>
+		<key>F447D8FD8628613559854FA119E997BD0DE92A68</key>
+		<string>../..lib/heatshrink</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/bjpirt/esphttpd</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>620178DCFBE952CB26FF7533A153D813877975A9</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>620178DCFBE952CB26FF7533A153D813877975A9</string>
+			<key>IDESourceControlWCCName</key>
+			<string>esphttpd</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F447D8FD8628613559854FA119E997BD0DE92A68</string>
+			<key>IDESourceControlWCCName</key>
+			<string>heatshrink</string>
+		</dict>
+	</array>
+</dict>
+</plist>
