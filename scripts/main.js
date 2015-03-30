@@ -1,7 +1,5 @@
-var p = new Pin(2),
-	v = 0;
+var v = 0;
 
 setInterval(function() {
-	console.log(v);
-	p.write(v = !v);
+	console.log('timer: ', v++);
 }, 1000);

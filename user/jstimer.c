@@ -307,7 +307,9 @@ bool jstSetWakeUp(JsSysTime period) {
   task.type = UET_WAKEUP;
 
   bool hasTimer = false;
-  JsSysTime nextTime;
+	// EDIT //
+	JsSysTime nextTime = 0;
+//  JsSysTime nextTime;
 
   // work out if we're waiting for a timer,
   // and if so, when it's going to be
@@ -432,7 +434,7 @@ void jstDumpUtilityTimers() {
   unsigned char t = uTimerTasksTail;
   while (t!=uTimerTasksHead) {
     UtilTimerTask task = uTimerTasks[t];
-	  os_printf("a5\n");
+//	  os_printf("a5\n");
     jsiConsolePrintf("%08d us : ", (int)(1000*jshGetMillisecondsFromTime(task.time-jsiLastIdleTime)));
 
     switch (task.type) {

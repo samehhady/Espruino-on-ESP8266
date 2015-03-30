@@ -65,9 +65,9 @@ static JsVarInt NO_INLINE OneWireRead(Pin pin, int bits) {
 }
 
 /** Write 'bits' bits, and return what was read (to read, you must send all 1s) */
-static void NO_INLINE OneWireWrite(Pin pin, int bits, unsigned long long data) {
+static void NO_INLINE OneWireWrite(Pin pin, int bits, uint64_t data) {
   jshPinSetState(pin, JSHPINSTATE_GPIO_OUT_OPENDRAIN);
-  unsigned long long mask = 1;
+  uint64_t mask = 1;
   while (bits-- > 0) {
     if (data & mask) { // short pulse
       jshInterruptOff();
@@ -143,7 +143,7 @@ void jswrap_onewire_select(JsVar *parent, JsVar *rom) {
   }
 
   // decode the address
-  unsigned long long romdata = 0;
+  uint64_t romdata = 0;
   JsvStringIterator it;
   jsvStringIteratorNew(&it, rom, 0);
   int i;
@@ -154,7 +154,7 @@ void jswrap_onewire_select(JsVar *parent, JsVar *rom) {
     b[1] = jsvStringIteratorGetChar(&it);
     jsvStringIteratorNext(&it);
     b[2] = 0;
-    romdata = romdata | (((unsigned long long)stringToIntWithRadix(b,16,0)) << (i*8));
+    romdata = romdata | (((uint64_t)stringToIntWithRadix(b,16,0)) << (i*8));
 
   }
   jsvStringIteratorFree(&it);
@@ -310,7 +310,7 @@ JsVar *jswrap_onewire_search(JsVar *parent, int command) {
        }
 
        // issue the search command
-       OneWireWrite(pin, 8, (unsigned long long)command);
+       OneWireWrite(pin, 8, (uint64_t)command);
 
        // loop to do the search
        do

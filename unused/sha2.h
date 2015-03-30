@@ -46,9 +46,9 @@
 
 #ifndef SHA2_TYPES
 #define SHA2_TYPES
-typedef unsigned char uint8;
-typedef unsigned int  uint32;
-typedef unsigned long long uint64;
+typedef uint8_t uint8;
+typedef uint32_t  uint32;
+typedef uint64_t uint64;
 #endif
 
 #ifdef __cplusplus

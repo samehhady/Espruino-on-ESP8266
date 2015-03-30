@@ -72,7 +72,7 @@ struct oneargument
   {
     const char *name;			/* Name of the function. */
     double (*func) (double);
-    const const double *arg1;
+    const double *arg1;
     const double *answer;
     int thresh;			/* Error report threshold. */
   };
@@ -212,7 +212,7 @@ struct oneargument test1[] =
   {"cbrt", cbrt, &MZERO, &MZERO, 0},
   {"cbrt", cbrt, &INF, &INF, 0},
   {"cbrt", cbrt, &MINF, &MINF, 0},
-  {"erf", erf, &NAN, &NAN, 0},
+/*  {"erf", erf, &NAN, &NAN, 0},
   {"erf", erf, &ZERO, &ZERO, 0},
   {"erf", erf, &MZERO, &MZERO, 0},
   {"erf", erf, &INF, &ONE, 0},
@@ -237,7 +237,7 @@ struct oneargument test1[] =
   {"lgam", lgam, &MONE, &INF, 0},
   {"lgam", lgam, &ZERO, &INF, 0},
   {"lgam", lgam, &MINF, &INF, 0},
-#endif
+#endif*/
   {"ceil", ceil, &NAN, &NAN, 0},
   {"ceil", ceil, &ZERO, &ZERO, 0},
   {"ceil", ceil, &MZERO, &MZERO, 0},
@@ -374,6 +374,9 @@ static volatile double x2;
 static volatile double y;
 static volatile double answer;
 
+void jsiConsolePrintf(const char *fmt, ...);
+#define printf jsiConsolePrintf
+
 void
 pvec(x)
 double x;
@@ -393,7 +396,7 @@ double x;
 
 
 int
-main ()
+test ()
 {
   int i, nerrors, k, ianswer, ntests;
   double (*fun1) (double);
@@ -540,5 +543,6 @@ nxttest2:
     }
 
   printf ("testvect: %d errors in %d tests\n", nerrors, ntests);
-  exit (0);
+  //exit (0);
+	return 0;
 }

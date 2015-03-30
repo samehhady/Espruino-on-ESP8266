@@ -324,15 +324,16 @@ int ff_del_syncobj (_SYNC_t sobj);				/* Delete a sync object */
 /* Multi-byte word access macros  */
 
 #if _WORD_ACCESS == 1	/* Enable word access to the FAT structure */
-inline WORD LD_WORD(void *ptr) { return *(WORD *)ptr; }
-//#define	LD_WORD(ptr)		(WORD)(*(WORD*)(BYTE*)(ptr))
-inline DWORD LD_DWORD(void *ptr) { return *(DWORD *)ptr; }
-//#define	LD_DWORD(ptr)		(DWORD)(*(DWORD*)(BYTE*)(ptr))
 // EDIT //
-inline WORD ST_WORD(void *ptr, WORD val) { return *(WORD *)ptr = val; }
-//#define	ST_WORD(ptr,val)	*(WORD*)(BYTE*)(ptr)=(WORD)(val)
-inline DWORD ST_DWORD(void *ptr, DWORD val) { return *(DWORD *)ptr = val; }
-//#define	ST_DWORD(ptr,val)	*(DWORD*)(BYTE*)(ptr)=(DWORD)(val)
+//inline WORD LD_WORD(void *ptr) { return *(WORD *)ptr; }
+#define	LD_WORD(ptr)		(WORD)(*(WORD*)(BYTE*)(ptr))
+//inline DWORD LD_DWORD(void *ptr) { return *(DWORD *)ptr; }
+#define	LD_DWORD(ptr)		(DWORD)(*(DWORD*)(BYTE*)(ptr))
+// EDIT //
+//inline WORD ST_WORD(void *ptr, WORD val) { return *(WORD *)ptr = val; }
+#define	ST_WORD(ptr,val)	*(WORD*)(BYTE*)(ptr)=(WORD)(val)
+//inline DWORD ST_DWORD(void *ptr, DWORD val) { return *(DWORD *)ptr = val; }
+#define	ST_DWORD(ptr,val)	*(DWORD*)(BYTE*)(ptr)=(DWORD)(val)
 #else					/* Use byte-by-byte access to the FAT structure */
 #define	LD_WORD(ptr)		(WORD)(((WORD)*((BYTE*)(ptr)+1)<<8)|(WORD)*(BYTE*)(ptr))
 #define	LD_DWORD(ptr)		(DWORD)(((DWORD)*((BYTE*)(ptr)+3)<<24)|((DWORD)*((BYTE*)(ptr)+2)<<16)|((WORD)*((BYTE*)(ptr)+1)<<8)|*(BYTE*)(ptr))

@@ -122,12 +122,12 @@ int chtod(char ch) {
 }
 
 /* convert a number in the given radix to an int. if radix=0, autodetect */
-long long stringToIntWithRadix(const char *s, int forceRadix, bool *hasError) {
+int64_t stringToIntWithRadix(const char *s, int forceRadix, bool *hasError) {
   // skip whitespace (strange parseInt behaviour)
   while (isWhitespace(*s)) s++;
 
   bool isNegated = false;
-  long long v = 0;
+  int64_t v = 0;
   if (*s == '-') {
     isNegated = true;
     s++;
@@ -156,7 +156,7 @@ long long stringToIntWithRadix(const char *s, int forceRadix, bool *hasError) {
 }
 
 /* convert hex, binary, octal or decimal string into an int */
-long long stringToInt(const char *s) {
+int64_t stringToInt(const char *s) {
     return stringToIntWithRadix(s,0,0);
 }
 
@@ -532,7 +532,8 @@ void vcbprintf(vcbprintf_callback user_callback, void *user_data, const char *fm
         if (*fmt=='x') { rad=16; fmt++; signedVal = false; }
         itostr_extra(va_arg(argp, JsVarInt), buf, signedVal, rad); user_callback(buf,user_data);
       } break;
-      case 'f': ftoa_bounded(va_arg(argp, JsVarFloat), buf, sizeof(buf)); user_callback(buf,user_data);  break;
+			  // EDIT //
+      case 'f': ftoa_bounded((JsVarFloat)va_arg(argp, double/*JsVarFloat*/), buf, sizeof(buf)); user_callback(buf,user_data);  break;
       case 's': user_callback(va_arg(argp, char *), user_data); break;
       case 'c': buf[0]=(char)va_arg(argp, int/*char*/);buf[1]=0; user_callback(buf, user_data); break;
       case 'q':

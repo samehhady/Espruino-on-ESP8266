@@ -634,13 +634,13 @@ JsVar *jsvNewFromFloat(JsVarFloat value) {
   var->varData.floating = value;
   return var;
 }
-JsVar *jsvNewFromLongInteger(long long value) {
-  if (value>=-2147483648LL && value<=2147483647LL)
+JsVar *jsvNewFromLongInteger(int64_t value) {
+//  if (value>=-2147483648LL && value <=2147483647LL)
+  if (value >= INT32_MIN && value <= INT32_MAX)
     return jsvNewFromInteger((JsVarInt)value);
   else
     return jsvNewFromFloat((JsVarFloat)value);
 }
-
 
 JsVar *jsvMakeIntoVariableName(JsVar *var, JsVar *valueOrZero) {
   if (!var) return 0;
@@ -1369,7 +1369,7 @@ JsVarInt jsvGetInteger(const JsVar *v) {
       return jsvGetIntegerAndUnLock(jsvSkipNameAndUnLock(jsvGetArrayItem(v,0)));
     if (jsvIsFloat(v)) {
       if (isfinite(v->varData.floating))
-        return (JsVarInt)(long long)v->varData.floating;
+        return (JsVarInt)(int64_t)v->varData.floating;
       return 0;
     }
     if (jsvIsString(v) && jsvIsStringNumericInt(v, true/* allow decimal point*/)) {
@@ -1380,13 +1380,14 @@ JsVarInt jsvGetInteger(const JsVar *v) {
     return 0;
 }
 
-long long jsvGetLongInteger(const JsVar *v) {
-  if (jsvIsInt(v)) return jsvGetInteger(v);
-  return (long long)jsvGetFloat(v);
+int64_t jsvGetLongInteger(const JsVar *v) {
+	jsiConsolePrintf("v: %v\n", v);
+  if (jsvIsInt(v)) return (int64_t)jsvGetInteger(v);
+  return (int64_t)jsvGetFloat(v);
 }
 
-long long jsvGetLongIntegerAndUnLock(JsVar *v) {
-  long long i = jsvGetLongInteger(v);
+int64_t jsvGetLongIntegerAndUnLock(JsVar *v) {
+  int64_t i = jsvGetLongInteger(v);
   jsvUnLock(v);
   return i;
 }
@@ -2516,9 +2517,9 @@ JsVar *jsvMathsOp(JsVar *a, JsVar *b, int op) {
             JsVarInt da = jsvGetInteger(a);
             JsVarInt db = jsvGetInteger(b);
             switch (op) {
-                case '+': return jsvNewFromLongInteger((long long)da + (long long)db);
-                case '-': return jsvNewFromLongInteger((long long)da - (long long)db);
-                case '*': return jsvNewFromLongInteger((long long)da * (long long)db);
+                case '+': return jsvNewFromLongInteger((int64_t)da + (int64_t)db);
+                case '-': return jsvNewFromLongInteger((int64_t)da - (int64_t)db);
+                case '*': return jsvNewFromLongInteger((int64_t)da * (int64_t)db);
                 case '/': return jsvNewFromFloat((JsVarFloat)da/(JsVarFloat)db);
                 case '&': return jsvNewFromInteger(da&db);
                 case '|': return jsvNewFromInteger(da|db);

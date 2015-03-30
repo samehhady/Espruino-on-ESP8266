@@ -51,6 +51,7 @@ void ets_intr_unlock(void);
 void wdt_feed(void);
 uint8 wifi_get_opmode(void);
 uint32 system_get_time();
+//uint64 system_get_time();
 int os_random();
 int rand(void);
 void ets_bzero(void *s, size_t n);

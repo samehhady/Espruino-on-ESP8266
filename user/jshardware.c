@@ -68,7 +68,7 @@ void jshKill() {
 }
 
 void jshIdle() {
-//	os_printf("jshIdle");
+//	jsiConsolePrintf("jshIdle");
 //   while (Serial.available() > 0) {
 //      jshPushIOCharEvent(EV_SERIAL1, Serial.read());
 //   }
@@ -91,8 +91,7 @@ void jshInterruptOn() {
 }
 
 void jshDelayMicroseconds(int microsec) {
-	os_printf("jshDelayMicroseconds %d\n", microsec);
-	ets_delay_us(microsec);
+	if (0 < microsec) ets_delay_us(microsec);
 }
 
 static uint8_t PERIPHS[] = {
@@ -134,7 +133,7 @@ static uint8_t function(JshPinState state) {
 	}
 }
 void jshPinSetState(Pin pin, JshPinState state) {
-//	os_printf("jshPinSetState %d, %d\n", pin, state);
+//	jsiConsolePrintf("jshPinSetState %d, %d\n", pin, state);
 	
 	assert(pin < 16);
 	int periph = PERIPHS_IO_MUX + PERIPHS[pin];
@@ -169,210 +168,52 @@ void jshPinSetState(Pin pin, JshPinState state) {
 }
 
 JshPinState jshPinGetState(Pin pin) {
-  os_printf("jshPinGetState %d\n", pin);
+  jsiConsolePrintf("jshPinGetState %d\n", pin);
   return JSHPINSTATE_UNDEFINED;
 }
 
 void jshPinSetValue(Pin pin, bool value) {
-//	os_printf("jshPinSetValue %d, %d\n", pin, value);
+//	jsiConsolePrintf("jshPinSetValue %d, %d\n", pin, value);
 
   GPIO_OUTPUT_SET(pin, value);
 }
 
 bool jshPinGetValue(Pin pin) {
-//	os_printf("jshPinGetValue %d, %d\n", pin, GPIO_INPUT_GET(pin));
+//	jsiConsolePrintf("jshPinGetValue %d, %d\n", pin, GPIO_INPUT_GET(pin));
 
   return GPIO_INPUT_GET(pin);
 }
 
 bool jshIsDeviceInitialised(IOEventFlags device) {
-  os_printf("jshIsDeviceInitialised %d\n", device);
+  jsiConsolePrintf("jshIsDeviceInitialised %d\n", device);
   return true;
 }
 
 bool jshIsUSBSERIALConnected() {
-  os_printf("jshIsUSBSERIALConnected\n");
+  jsiConsolePrintf("jshIsUSBSERIALConnected\n");
   return true;
 }
 
-//----------------------
-/*
-static JsSysTime jshGetTimeForSecond() {
-#ifdef USE_RTC
-	return (JsSysTime)JSSYSTIME_SECOND;
-#else
-	return (JsSysTime)getSystemTimerFreq();
-#endif
-}
-
 JsSysTime jshGetTimeFromMilliseconds(JsVarFloat ms) {
-	return (JsSysTime)((ms*(JsVarFloat)jshGetTimeForSecond())/1000);
+//	jsiConsolePrintf("jshGetTimeFromMilliseconds %d, %f\n", (JsSysTime)(ms * 1000.0), ms);
+	return (JsSysTime)(ms * 1000.0 + 0.5);
 }
 
 JsVarFloat jshGetMillisecondsFromTime(JsSysTime time) {
-	return ((JsVarFloat)time)*1000/(JsVarFloat)jshGetTimeForSecond();
-}
-
-#ifdef USE_RTC
-#ifdef STM32F1
-unsigned short rtcHighBits = 0;
-unsigned int rtcLastCall = 0;
-#endif
-
-JsSysTime jshGetRTCSystemTime() {
-#ifdef STM32F1
-	volatile uint16_t dl,ch,cl,cl1;
-	do {
-		cl1 = RTC->CNTL;
-		dl = RTC->DIVL;
-		ch = RTC->CNTH;
-		cl = RTC->CNTL;
-	} while(cl1!=cl);
-	
-	unsigned int chl = (((unsigned int)ch)<<16) | (unsigned int)cl;
-	if (chl < rtcLastCall) {
-		rtcLastCall = chl;
-		rtcHighBits++;
-	}
-	JsSysTime c = chl | (((JsSysTime)rtcHighBits)<<32);
-	
-#else
-	RTC_TimeTypeDef time;
-	RTC_DateTypeDef date;
-	uint16_t dl = (uint16_t)RTC_GetSubSecond(); // get first, as this freezes the time + date
-	RTC_GetTime(RTC_Format_BIN, &time);
-	RTC_GetDate(RTC_Format_BIN, &date);
-	
-	CalendarDate cdate;
-	TimeInDay ctime;
-	cdate.day = date.RTC_Date;
-	cdate.month = date.RTC_Month;
-	cdate.year = 2000+date.RTC_Year;
-	cdate.dow = date.RTC_WeekDay%7;
-	ctime.daysSinceEpoch = fromCalenderDate(&cdate);
-	ctime.zone = 0;
-	ctime.ms = 0;
-	ctime.sec = time.RTC_Seconds;
-	ctime.min = time.RTC_Minutes;
-	ctime.hour = time.RTC_Hours;
-	
-	JsSysTime c = (JsSysTime)(fromTimeInDay(&ctime)/1000);
-#endif
-	return (((JsSysTime)c) << JSSYSTIME_SECOND_SHIFT) | (JsSysTime)((((unsigned int)jshRTCPrescaler - (unsigned int)(dl+1))*(unsigned int)jshRTCPrescalerReciprocal) >> RTC_PRESCALER_RECIPROCAL_SHIFT);
-}
-#endif
-
-JsSysTime jshGetSystemTime() {
-#ifdef USE_RTC
-	if (ticksSinceStart<=RTC_INITIALISE_TICKS)
-		return jshGetRTCSystemTime(); // Clock hasn't stabilised yet, just use whatever RTC value we currently have
-	if (hasSystemSlept) {
-		// reset SysTick counter. This will hopefully cause it
-		// to fire off a SysTick IRQ, which will reset lastSysTickTime
-		SysTick->VAL = 0; // this doesn't itself fire an IRQ it seems
-		jshDoSysTick();
-	}
-	// Try and fix potential glitch caused by rollover of SysTick
-	JsSysTime last1, last2;
-	unsigned int avr1,avr2;
-	unsigned int sysTick;
-	do {
-		avr1 = smoothAverageSysTickTime;
-		last1 = smoothLastSysTickTime;
-		sysTick = SYSTICK_RANGE - SysTick->VAL;
-		last2 = smoothLastSysTickTime;
-		avr2 = smoothAverageSysTickTime;
-	} while (last1!=last2 || avr1!=avr2);
-	// Now work out time...
-	return last2 + (((JsSysTime)sysTick*(JsSysTime)avr2)/SYSTICK_RANGE);
-#else
-	JsSysTime major1, major2, major3, major4;
-	unsigned int minor;
-	do {
-		major1 = SysTickMajor;
-		major2 = SysTickMajor;
-		minor = SysTick->VAL;
-		major3 = SysTickMajor;
-		major4 = SysTickMajor;
-	} while (major1!=major2 || major2!=major3 || major3!=major4);
-	return major1 - (JsSysTime)minor;
-#endif
-}
-
-void jshSetSystemTime(JsSysTime newTime) {
-	jshInterruptOff();
-	// NOTE: Subseconds are not set here
-#ifdef USE_RTC
-	
-#ifdef STM32F1
-	rtcLastCall = (unsigned int)(newTime>>JSSYSTIME_SECOND_SHIFT);
-	rtcHighBits = (unsigned short)(newTime>>(JSSYSTIME_SECOND_SHIFT+32));
-	RTC_SetCounter(rtcLastCall);
-	
-	RTC_WaitForLastTask();
-#else // !STM32F1
-	RTC_TimeTypeDef time;
-	RTC_DateTypeDef date;
-	
-	
-	TimeInDay ctime = getTimeFromMilliSeconds((JsVarFloat)newTime * 1000 / JSSYSTIME_SECOND);
-	CalendarDate cdate = getCalendarDate(ctime.daysSinceEpoch);
-	
-	date.RTC_Date = (uint8_t)cdate.day;
-	date.RTC_Month = (uint8_t)cdate.month;
-	date.RTC_Year = (uint8_t)(cdate.year - 2000);
-	date.RTC_WeekDay = (uint8_t)(cdate.dow + 1);
-	
-	time.RTC_Seconds = (uint8_t)ctime.sec;
-	time.RTC_Minutes = (uint8_t)ctime.min;
-	time.RTC_Hours = (uint8_t)ctime.hour;
-	time.RTC_H12 = 0;
-	
-	RTC_SetTime(RTC_Format_BIN, &time);
-	RTC_SetDate(RTC_Format_BIN, &date);
-	RTC_WaitForSynchro();
-#endif // !STM32F1
-	
-	
-	hasSystemSlept = true;
-#else // !USE_RTC
-	SysTickMajor = newTime;
-#endif // !USE_RTC
-	jshInterruptOn();
-	jshGetSystemTime(); // force update of the time
-}
- */
-//----------------------
-
-
-// setInterval(function() { console.log('1'); }, 1000);
-// setTimeout(function() { console.log('1'); }, 1000);
-/*JsSysTime jshGetTimeFromMilliseconds(JsVarFloat ms) {
-	return (JsSysTime)((ms*(JsVarFloat)jshGetTimeForSecond())/1000);
-}
-
-JsVarFloat jshGetMillisecondsFromTime(JsSysTime time) {
-	return ((JsVarFloat)time)*1000/(JsVarFloat)jshGetTimeForSecond();
-}*/
-
-JsSysTime jshGetTimeFromMilliseconds(JsVarFloat ms) {
-  os_printf("jshGetTimeFromMilliseconds %lld\n", (JsSysTime)(ms * 1000.0f));
-  return (JsSysTime)(ms * 1000.0f);
-}
-
-JsVarFloat jshGetMillisecondsFromTime(JsSysTime time) {
-  os_printf("jshGetMillisecondsFromTime %lld\n", time);
-  return (JsVarFloat)(time / 1000.0f);
+//	jsiConsolePrintf("jshGetMillisecondsFromTime %d, %f\n", time, (JsVarFloat)time / 1000.0);
+	return (JsVarFloat)time / 1000.0;
 }
 
 JsSysTime jshGetSystemTime() { // in us
-//	os_printf("jshGetSystemTime %d %d %d\n", system_get_time(), system_get_rtc_time(), system_rtc_clock_cali_proc());
-	
-  return ((JsSysTime)system_get_time());
+	uint32 t = system_get_time();
+  JsSysTime time = (JsSysTime)t;
+//  jsiConsolePrintf("jshGetSystemTime 1 %d, %d, %d\n", t, time, (uint32)time);
+//  os_printf("jshGetSystemTime 2 %d, %lld, %d\n", t, time, (uint32)time);
+  return time;
 }
 
 void jshSetSystemTime(JsSysTime time) {
-  os_printf("SetSystemTime: %lld\n", time);
+  jsiConsolePrintf("SetSystemTime: %d\n", time);
 }
 
 // ----------------------------------------------------------------------------
@@ -390,15 +231,15 @@ JshPinFunction jshPinAnalogOutput(Pin pin, JsVarFloat value, JsVarFloat freq) { 
 }
 
 void jshSetOutputValue(JshPinFunction func, int value) {
-  os_printf("jshSetOutputValue %d %d\n", func, value);
+  jsiConsolePrintf("jshSetOutputValue %d %d\n", func, value);
 }
 
 void jshEnableWatchDog(JsVarFloat timeout) {
-  os_printf("jshEnableWatchDog %0.3f\n", timeout);
+  jsiConsolePrintf("jshEnableWatchDog %0.3f\n", timeout);
 }
 
 bool jshGetWatchedPinState(IOEventFlags device) {
-  //os_printf("jshGetWatchedPinState %d", device);
+  //jsiConsolePrintf("jshGetWatchedPinState %d", device);
 	return false;
 }
 
@@ -406,7 +247,7 @@ void jshPinPulse(Pin pin, bool value, JsVarFloat time) {
   if (jshIsPinValid(pin)) {
     jshPinSetState(pin, JSHPINSTATE_GPIO_OUT);
     jshPinSetValue(pin, value);
-//    delayMicroseconds(time*1000000);
+	jshDelayMicroseconds(jshGetTimeFromMilliseconds(time));
     jshPinSetValue(pin, !value);
   } else jsError("Invalid pin!");
 }
@@ -422,7 +263,7 @@ IOEventFlags jshPinWatch(Pin pin, bool shouldWatch) {
 }
 
 JshPinFunction jshGetCurrentPinFunction(Pin pin) {
-  os_printf("jshGetCurrentPinFunction %d\n", pin);
+  jsiConsolePrintf("jshGetCurrentPinFunction %d\n", pin);
   return JSH_NOTHING;
 }
 
@@ -477,37 +318,36 @@ void jshI2CRead(IOEventFlags device, unsigned char address, int nBytes, unsigned
 
 
 void jshSaveToFlash() {
-  os_printf("jshSaveToFlash\n");
+  jsiConsolePrintf("jshSaveToFlash\n");
 }
 
 void jshLoadFromFlash() {
-  os_printf("jshLoadFromFlash\n");
+  jsiConsolePrintf("jshLoadFromFlash\n");
 }
 
 bool jshFlashContainsCode() {
-  os_printf("jshFlashContainsCode\n");
+  jsiConsolePrintf("jshFlashContainsCode\n");
   return false;
 }
 
 /// Enter simple sleep mode (can be woken up by interrupts). Returns true on success
 bool jshSleep(JsSysTime timeUntilWake) {
-	if (timeUntilWake > 10000000) return false;
-	os_printf("jshSleep %lld\n", timeUntilWake);
-	ets_delay_us(timeUntilWake); return true;
-//  return true;
-	return false;
+	int time = (int)timeUntilWake;
+	os_printf("jshSleep %d\n", time);
+	jshDelayMicroseconds(time);
+	return true;
 }
 
 void jshUtilTimerDisable() {
-	os_printf("jshUtilTimerDisable\n");
+	jsiConsolePrintf("jshUtilTimerDisable\n");
 }
 
 void jshUtilTimerReschedule(JsSysTime period) {
-	os_printf("jshUtilTimerReschedule %lld\n", period);
+	jsiConsolePrintf("jshUtilTimerReschedule %d\n", period);
 }
 
 void jshUtilTimerStart(JsSysTime period) {
-	os_printf("jshUtilTimerStart %lld\n", period);
+	jsiConsolePrintf("jshUtilTimerStart %d\n", period);
 }
 
 JsVarFloat jshReadTemperature() { return NAN; };

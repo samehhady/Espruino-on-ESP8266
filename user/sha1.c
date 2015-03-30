@@ -5,11 +5,10 @@
 #include "c_types.h"
 #include "osapi.h"
 */
-#include "espmissingincludes.h"
+//#include "espmissingincludes.h"
+#include "platform_config.h"
 //#include "mem.h"
-#include "osapi.h"
-#define memset(x,y,z) os_memset(x,y,z)
-#define memcpy(x,y,z) os_memcpy(x,y,z)
+//#include "osapi.h"
 
 
 #define HASH_LENGTH 20

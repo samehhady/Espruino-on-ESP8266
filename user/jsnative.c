@@ -17,6 +17,7 @@
 #include "jsinteractive.h"
 
 // none of this is used at the moment
+JsVar *jswrap_interface_setInterval(JsVar *func, JsVarFloat timeout);
 
 #define MAX_ARGS 12
 
@@ -54,8 +55,6 @@ JsVar *jsnCallFunction(void *function, JsnArgumentType argumentSpecifier, JsVar 
     if (argCount > MAX_ARGS - (JSWAT_IS_64BIT(argType)?2:1)) {
       jsError("INTERNAL: too many arguments for jsnCallFunction");
     }
-
-
 
     switch (argType) {
       case JSWAT_JSVAR: { // standard variable
@@ -96,6 +95,7 @@ JsVar *jsnCallFunction(void *function, JsnArgumentType argumentSpecifier, JsVar 
         argData[argCount++] = (size_t)((i>>32) & 0xFFFFFFFF);
 #endif
 #else
+		  jsiConsolePrintf("doubleData, %d, %d\n", doubleCount, (int)f);
         doubleData[doubleCount++] = f;
 #endif
         break;
@@ -118,23 +118,27 @@ JsVar *jsnCallFunction(void *function, JsnArgumentType argumentSpecifier, JsVar 
       if (returnType==JSWAT_JSVARFLOAT) {
         // On x86, doubles are returned in a floating point unit register
         JsVarFloat f = ((JsVarFloat (*)(size_t,size_t,size_t,size_t,JsVarFloat,JsVarFloat,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],argData[2],argData[3],doubleData[0],doubleData[1],doubleData[2],doubleData[3]);
-// EDIT //
-		  uint64_t *p = (uint64_t *)&f;
-		  result = *p;
-//        result = *(uint64_t*)&f;
+        result = *(uint64_t*)&f;
       } else {
-        if (JSWAT_IS_64BIT(returnType))
+		  // HERE
+		  jsiConsolePrintf("callFunction: %d, %d, %d\n", JSWAT_IS_64BIT(returnType), function == jswrap_interface_setInterval, (int)doubleData[0]);
+//		  if (function == jswrap_interface_setInterval) {
+//			  result = (uint32_t)jswrap_interface_setInterval((JsVar *)argData[0], doubleData[0]);
+//		  }
+//		  else
+
+		if (JSWAT_IS_64BIT(returnType))
           result = ((uint64_t (*)(size_t,size_t,size_t,size_t,JsVarFloat,JsVarFloat,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],argData[2],argData[3],doubleData[0],doubleData[1],doubleData[2],doubleData[3]);
-        else
-          result = ((uint32_t (*)(size_t,size_t,size_t,size_t,JsVarFloat,JsVarFloat,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],argData[2],argData[3],doubleData[0],doubleData[1],doubleData[2],doubleData[3]);
+		else // HERE
+			if (argCount<=2)
+				result = ((uint32_t (*)(size_t,size_t,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],doubleData[0],doubleData[1]);
+			else
+				result = ((uint32_t (*)(size_t,size_t,size_t,size_t,JsVarFloat,JsVarFloat,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],argData[2],argData[3],doubleData[0],doubleData[1],doubleData[2],doubleData[3]);
       }
     } else if (returnType==JSWAT_JSVARFLOAT) {
       // On x86, doubles are returned in a floating point unit register
       JsVarFloat f = ((JsVarFloat (*)(size_t,size_t,size_t,size_t))function)(argData[0],argData[1],argData[2],argData[3]);
-// EDIT //
-		uint64_t *p = (uint64_t *)&f;
-		result = *p;
-//      result = *(uint64_t*)&f;
+      result = *(uint64_t*)&f;
     } else
 #endif
     {
@@ -149,10 +153,7 @@ JsVar *jsnCallFunction(void *function, JsnArgumentType argumentSpecifier, JsVar 
     if (returnType==JSWAT_JSVARFLOAT) {
       // On x86, doubles are returned in a floating point unit register
       JsVarFloat f = ((JsVarFloat (*)(size_t,size_t,size_t,size_t,size_t,size_t,size_t,size_t,size_t,size_t,size_t,size_t))function)(argData[0],argData[1],argData[2],argData[3],argData[4],argData[5],argData[6],argData[7],argData[8],argData[9],argData[10],argData[11]);
-// EDIT //
-		uint64_t *p = (uint64_t *)&f;
-		result = *p;
-//      result = *(uint64_t*)&f;
+      result = *(uint64_t*)&f;
     } else
 #endif
     {
@@ -177,12 +178,8 @@ JsVar *jsnCallFunction(void *function, JsnArgumentType argumentSpecifier, JsVar 
       return jsvNewFromPin((Pin)result);
     case JSWAT_INT32: // 32 bit int
       return jsvNewFromInteger((JsVarInt)result);
-    case JSWAT_JSVARFLOAT: { // 64 bit float
-// EDIT //
-		JsVarFloat *p = (JsVarFloat *)&result;
-		return jsvNewFromFloat(*p);
-//      return jsvNewFromFloat(*(JsVarFloat*)&result);
-	}
+    case JSWAT_JSVARFLOAT: // 64 bit float
+      return jsvNewFromFloat(*(JsVarFloat*)&result);
     default:
       assert(0);
       return 0;

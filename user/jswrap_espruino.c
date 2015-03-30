@@ -351,8 +351,9 @@ short FFT(short int dir,long m,double *x,double *y)
          y[i] /= (double)n;
       }
    }
-
-   return(TRUE);
+// EDIT //
+  return true;
+//   return(TRUE);
 }
 
 /*JSON{

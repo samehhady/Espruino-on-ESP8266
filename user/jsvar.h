@@ -231,7 +231,7 @@ JsVar *jsvNewFromInteger(JsVarInt value);
 JsVar *jsvNewFromBool(bool value);
 JsVar *jsvNewFromFloat(JsVarFloat value);
 // Create an integer (or float) from this value, depending on whether it'll fit in 32 bits or not.
-JsVar *jsvNewFromLongInteger(long long value);
+JsVar *jsvNewFromLongInteger(int64_t value);
 // Turns var into a Variable name that links to the given value... No locking so no need to unlock var
 JsVar *jsvMakeIntoVariableName(JsVar *var, JsVar *valueOrZero);
 void jsvMakeFunctionParameter(JsVar *v);
@@ -434,7 +434,7 @@ JsVarInt jsvGetInteger(const JsVar *v);
 void jsvSetInteger(JsVar *v, JsVarInt value); ///< Set an integer value (use carefully!)
 JsVarFloat jsvGetFloat(const JsVar *v); ///< Get the floating point representation of this var
 bool jsvGetBool(const JsVar *v);
-long long jsvGetLongInteger(const JsVar *v);
+int64_t jsvGetLongInteger(const JsVar *v);
 JsVar *jsvAsNumber(JsVar *var); ///< Convert the given variable to a number
 
 static ALWAYS_INLINE JsVar *jsvAsNumberAndUnLock(JsVar *v) { JsVar *n = jsvAsNumber(v); jsvUnLock(v); return n; }
@@ -450,7 +450,7 @@ bool jsvGetBoolAndUnLock(JsVar *v);
 #define jsvGetFloatAndUnLock _jsvGetFloatAndUnLock
 #define jsvGetBoolAndUnLock _jsvGetBoolAndUnLock
 #endif
-long long jsvGetLongIntegerAndUnLock(JsVar *v);
+int64_t jsvGetLongIntegerAndUnLock(JsVar *v);
 
 
 

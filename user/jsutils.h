@@ -66,9 +66,13 @@ typedef enum {FALSE = 0, TRUE = !FALSE} bool;
 #define false (0)
 #endif*/
 
-
+// EDIT //
+#ifndef DBL_MIN
 #define DBL_MIN 2.2250738585072014e-308
+#endif
+#ifndef DBL_MAX
 #define DBL_MAX 1.7976931348623157e+308
+#endif
 
 /* Number of Js Variables allowed and Js Reference format. 
 
@@ -86,8 +90,8 @@ typedef enum {FALSE = 0, TRUE = !FALSE} bool;
  //  probably linux - allow us to allocate more blocks of variables
   typedef unsigned int JsVarRef;
   typedef int JsVarRefSigned;
-  #define JSVARREF_MIN (-2147483648)
-  #define JSVARREF_MAX 2147483647
+  #define JSVARREF_MIN INT32_MIN//(-2147483648)
+  #define JSVARREF_MAX INT32_MAX//2147483647
   #define JSVARREF_SIZE 4
 #else
    /** JsVerRef stores References for variables - We treat 0 as null
@@ -141,8 +145,11 @@ typedef float JsVarFloat;
 typedef double JsVarFloat;
 #endif
 
-#define JSSYSTIME_MAX 0x7FFFFFFFFFFFFFFFLL
-typedef long long JsSysTime;
+// EDIT //
+#define JSSYSTIME_MAX INT64_MAX //0x7FFFFFFFFFFFFFFFLL
+typedef int64_t JsSysTime;
+//#define JSSYSTIME_MAX INT32_MAX //0x7FFFFFFF
+//typedef int32_t JsSysTime;
 #define JSSYSTIME_INVALID ((JsSysTime)-1)
 
 #define JSLEX_MAX_TOKEN_LENGTH  64
@@ -382,9 +389,9 @@ const char *escapeCharacter(char ch);
 /// Convert a character to the hexadecimal equivalent (or -1)
 int chtod(char ch);
 /* convert a number in the given radix to an int. if radix=0, autodetect */
-long long stringToIntWithRadix(const char *s, int radix, bool *hasError);
+int64_t stringToIntWithRadix(const char *s, int radix, bool *hasError);
 /* convert hex, binary, octal or decimal string into an int */
-long long stringToInt(const char *s);
+int64_t stringToInt(const char *s);
 
 // forward decl
 struct JsLex;

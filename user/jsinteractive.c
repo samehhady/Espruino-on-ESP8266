@@ -1348,7 +1348,7 @@ void jsiIdle() {
           bool executeNow = false;
           JsVarInt debounce = jsvGetIntegerAndUnLock(jsvObjectGetChild(watchPtr, "debounce", 0));
           if (debounce<=0) {
-			  os_printf("debounce!\n");
+//			  os_printf("debounce!\n");
             executeNow = true;
           } else { // Debouncing - use timeouts to ensure we only fire at the right time
             // store the current state of the pin
@@ -1362,7 +1362,7 @@ void jsiIdle() {
               if (eventTime > timeoutTime) {
                 // timeout should have fired, but we didn't get around to executing it!
                 // Do it now (with the old timeout time)
-				  os_printf("executeNow = true;\n");
+//				  os_printf("executeNow = true;\n");
                 executeNow = true;
                 eventTime = timeoutTime - debounce;
                 pinIsHigh = oldWatchState;
@@ -1386,7 +1386,7 @@ void jsiIdle() {
 
           // If we want to execute this watch right now...
           if (executeNow) {
-			  os_printf("a1\n");
+//			  os_printf("a1\n");
             JsVar *timePtr = jsvNewFromFloat(jshGetMillisecondsFromTime(eventTime)/1000);
             if (jsiShouldExecuteWatch(watchPtr, pinIsHigh)) { // edge triggering
               JsVar *watchCallback = jsvObjectGetChild(watchPtr, "callback", 0);
@@ -1437,22 +1437,34 @@ void jsiIdle() {
 
   // Check timers
   JsSysTime minTimeUntilNext = JSSYSTIME_MAX;
+	os_printf("1: %d\n", (int)minTimeUntilNext);
   JsSysTime time = jshGetSystemTime();
-  JsSysTime timePassed = (JsVarInt)(time - jsiLastIdleTime);
+  JsSysTime timePassed = (JsSysTime)(time - jsiLastIdleTime);
+	os_printf("10: %d\n", (int)jsiLastIdleTime);
+	os_printf("11: %d\n", (int)time);
+	os_printf("12: %d\n", (int)timePassed);
   jsiLastIdleTime = time;
 
   JsVar *timerArrayPtr = jsvLock(timerArray);
+	jsiConsolePrintf("timerArrayPtr: %v\n", timerArrayPtr);
   JsvObjectIterator it;
   jsvObjectIteratorNew(&it, timerArrayPtr);
   while (jsvObjectIteratorHasValue(&it)) {
     bool hasDeletedTimer = false;
+	  jsiConsolePrintf("it: %v\n", it.var);
     JsVar *timerPtr = jsvObjectIteratorGetValue(&it);
-    JsSysTime timerTime = (JsSysTime)jsvGetLongIntegerAndUnLock(jsvObjectGetChild(timerPtr, "time", 0));
+	  JsSysTime timerTime = (JsSysTime)jsvGetLongIntegerAndUnLock(jsvObjectGetChild(timerPtr, "time", 0));
     JsSysTime timeUntilNext = timerTime - timePassed;
+//	  if (timeUntilNext < 0) timeUntilNext = 0;
+	  os_printf("20: %d\n", (int)timerTime);
+	  os_printf("21: %d\n", (int)timePassed);
+	  os_printf("22: %d\n", (int)timeUntilNext);
 
     if (timeUntilNext < minTimeUntilNext)
       minTimeUntilNext = timeUntilNext;
-    if (timeUntilNext<=0) {
+
+	  os_printf("4: %d\n", (int)minTimeUntilNext);
+	if (timeUntilNext<=0) {
       // we're now doing work
       jsiSetBusy(BUSY_INTERACTIVE, true);
       wasBusy = true;
@@ -1466,7 +1478,7 @@ void jsiIdle() {
         if (watchPtr)
           delay = jsvGetIntegerAndUnLock(jsvObjectGetChild(watchPtr, "debounce", 0));
         // Create the 'time' variable that will be passed to the user
-		  os_printf("a2\n");
+//		  os_printf("a2\n");
         JsVar *timePtr = jsvNewFromFloat(jshGetMillisecondsFromTime(jsiLastIdleTime+timeUntilNext-delay)/1000.0f);
         // if it was a watch, set the last state up
         if (watchPtr) {
@@ -1480,6 +1492,7 @@ void jsiIdle() {
         jsvUnLock(jsvObjectSetChild(data, "time", timePtr));
       }
       JsVar *interval = jsvObjectGetChild(timerPtr, "interval", 0);
+		jsiConsolePrintf("interval: %v %v\n", timerPtr, interval);
       if (exec) {
         if (!jsiExecuteEventCallback(timerCallback, data, 0) && interval) {
           jsError("Error processing interval - removing it.");
@@ -1509,7 +1522,13 @@ void jsiIdle() {
       }
 
       if (interval) {
-        timeUntilNext = timeUntilNext + jsvGetLongIntegerAndUnLock(interval);
+		  JsSysTime i = jsvGetLongIntegerAndUnLock(interval);
+        timeUntilNext = timeUntilNext + i;
+		  os_printf("5: %d\n", (int)minTimeUntilNext);
+		  jsiConsolePrintf("50: %v\n", interval);
+		  os_printf("51: %d\n", (int)timeUntilNext);
+		  os_printf("52: %d\n", (int)i);
+		  os_printf("53: %d\n", (int)timeUntilNext);
       } else {
         // free
         // Beware... may have already been removed!
@@ -1609,6 +1628,7 @@ void jsiIdle() {
       !jshHasEvents() && //no events have arrived in the mean time
       !jshHasTransmitData()/* && //nothing left to send over serial?
       minTimeUntilNext > SYSTICK_RANGE*5/4*/) { // we are sure we won't miss anything - leave a little leeway (SysTick will wake us up!)
+		  os_printf("6: %d\n", (int)minTimeUntilNext);
     jshSleep(minTimeUntilNext);
   }
 }
@@ -1763,7 +1783,7 @@ void jsiDumpState() {
     JsVar *timerInterval = jsvObjectGetChild(timer, "interval", 0);
     jsiConsolePrint(timerInterval ? "setInterval(" : "setTimeout(");
     jsiDumpJSON(timerCallback, 0);
-	  os_printf("a3\n");
+//	  os_printf("a3\n");
     jsiConsolePrintf(", %f);\n", jshGetMillisecondsFromTime(timerInterval ? jsvGetLongInteger(timerInterval) : jsvGetLongIntegerAndUnLock(jsvObjectGetChild(timer, "time", 0))));
     jsvUnLock(timerInterval);
     jsvUnLock(timerCallback);
@@ -1789,7 +1809,7 @@ void jsiDumpState() {
                      watchPin,
                      watchRecur?"true":"false",
                      (watchEdge<0)?"falling":((watchEdge>0)?"rising":"both"));
-	  os_printf("a4\n");
+//	  os_printf("a4\n");
     if (watchDebounce>0)
       jsiConsolePrintf(", debounce : %f", jshGetMillisecondsFromTime(watchDebounce));
     jsiConsolePrint(" });\n");

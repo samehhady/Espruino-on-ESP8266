@@ -234,7 +234,7 @@ JsVar *jsvArrayBufferIteratorGetValue(JsvArrayBufferIterator *it) {
   } else {
     JsVarInt i = jsvArrayBufferIteratorDataToInt(it, data);
     if (it->type == ARRAYBUFFERVIEW_UINT32)
-      return jsvNewFromLongInteger((long long)(uint32_t)i);
+      return jsvNewFromLongInteger((int64_t)(uint32_t)i);
     return jsvNewFromInteger(i);
   }
 }
@@ -280,7 +280,7 @@ static void jsvArrayBufferIteratorIntToData(char *data, unsigned int dataLen, in
   if (dataLen==1) { data[0] = (char)v; }
   else if (dataLen==2) { *(short*)data = (short)v; }
   else if (dataLen==4) { *(int*)data = (int)v; }
-  else if (dataLen==8) { *(long long*)data = (long long)v; }
+  else if (dataLen==8) { *(int64_t*)data = (int64_t)v; }
   else assert(0);
 }
 

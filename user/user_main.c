@@ -17,10 +17,16 @@
 // error handler for pure virtual calls
 void __cxa_pure_virtual() { while (1); }
 
-void jsInit() {
-    jshInit();
-    jsvInit();
-    jsiInit(true);
+void jsInit(bool autoLoad) {
+	jshInit();
+	jsvInit();
+	jsiInit(autoLoad);
+}
+
+void jsKill() {
+	jsiKill();
+	jsvKill();
+	jshKill();
 }
 
 /*
@@ -82,7 +88,7 @@ void writeToFlash(JsVar *jsCode) {
 	while (addr < to) {
 		spi_flash_erase_sector(sector);
 		if (SPI_FLASH_RESULT_OK != (error = spi_flash_write(addr, (uint32 *)code, SPI_FLASH_SEC_SIZE))) {
-			os_printf("\nwriteToFlash error %d\n", error);
+			jsiConsolePrintf("\nwriteToFlash error %d\n", error);
 		}
 		addr += SPI_FLASH_SEC_SIZE;
 		code += SPI_FLASH_SEC_SIZE;
@@ -90,26 +96,125 @@ void writeToFlash(JsVar *jsCode) {
 	}
 }
 
+void printTime(JsSysTime time) {
+	JsVarFloat ms = jshGetMillisecondsFromTime(time);
+	jsiConsolePrintf("time: %d, %f, %d\n", (int)time, ms, (int)jshGetTimeFromMilliseconds(ms));
+}
+void printMilliseconds(JsVarFloat ms) {
+	JsSysTime time = jshGetTimeFromMilliseconds(ms);
+	jsiConsolePrintf("ms: %f, %d, %f\n", ms, (int)time, jshGetMillisecondsFromTime(time));
+}
+
+void test() {
+	JsSysTime time = 1;
+	for (int n = 0; n < 15; n++) {
+		printTime(time);
+		printTime(time/10);
+		time *= 10;
+	}
+	JsVarFloat ms = 1.0;
+	for (int n = 0; n < 15; n++) {
+		printMilliseconds(ms);
+		printMilliseconds(ms/10.0);
+		ms *= 10.0;
+	}
+}
+
+//JsVar *jswrap_interface_setInterval(JsVar *func, JsVarFloat timeout);
+JsVar *prototype1(JsVar *v1, JsVarFloat f1) {
+	jsiConsolePrintf("%v, %d\n", v1, (int)f1);
+	return 0;
+}
+JsVar *prototype2(JsVar *v1, JsVar *v2, JsVarFloat f1, JsVarFloat f2) {
+	jsiConsolePrintf("%v, %v, %d, %d\n", v1, v2, (int)f1, (int)f2);
+	return 0;
+}
+JsVar *prototype3(JsVar *v1, JsVar *v2, JsVar *v3, JsVarFloat f1, JsVarFloat f2, JsVarFloat f3) {
+	jsiConsolePrintf("%v, %v, %v, %d, %d, %d\n", v1, v2, v3, (int)f1, (int)f2, (int)f3);
+	return 0;
+}
+JsVar *prototype4(JsVar *v1, JsVar *v2, JsVar *v3, JsVar *v4, JsVarFloat f1, JsVarFloat f2, JsVarFloat f3, JsVarFloat f4) {
+	jsiConsolePrintf("%v, %v, %v, %v, %d, %d, %d, %d\n", v1, v2, v3, v4, (int)f1, (int)f2, (int)f3, (int)f4);
+	return 0;
+}
+
+void functionCall4(void *function, JsVar *v1, JsVar *v2, JsVar *v3, JsVar *v4, JsVar *v5, JsVar *v6, JsVar *v7, JsVar *v8) {
+	size_t d[] = {(size_t)v1, (size_t)v2, (size_t)v3, (size_t)v4};
+	JsVarFloat f[] = {jsvGetFloat(v5), jsvGetFloat(v6), jsvGetFloat(v7), jsvGetFloat(v8)};
+	
+	((uint64_t (*) (
+					size_t,
+					size_t,
+					JsVarFloat,
+					JsVarFloat
+					))function) (
+								 d[0],
+								 d[1],
+								 f[0],
+								 f[1]
+								 );
+}
+
+void functionCall8(void *function, JsVar *v1, JsVar *v2, JsVar *v3, JsVar *v4, JsVar *v5, JsVar *v6, JsVar *v7, JsVar *v8) {
+	size_t d[] = {(size_t)v1, (size_t)v2, (size_t)v3, (size_t)v4};
+	JsVarFloat f[] = {jsvGetFloat(v5), jsvGetFloat(v6), jsvGetFloat(v7), jsvGetFloat(v8)};
+	
+	((uint64_t (*) (
+					size_t,
+					size_t,
+					size_t,
+					size_t,
+					JsVarFloat,
+					JsVarFloat,
+					JsVarFloat,
+					JsVarFloat
+					))function) (
+								 d[0],
+								 d[1],
+								 d[2],
+								 d[3],
+								 f[0],
+								 f[1],
+								 f[2],
+								 f[3]
+								 );
+}
+
+void testFunctionCall() {
+	JsVar *v[] = {
+		jsvNewFromFloat(11.0), jsvNewFromFloat(12.0), jsvNewFromFloat(13.0), jsvNewFromFloat(14.0),
+		jsvNewFromFloat(15.0), jsvNewFromFloat(16.0), jsvNewFromFloat(17.0), jsvNewFromFloat(18.0)
+	};
+	
+	functionCall4(prototype1, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+	functionCall4(prototype2, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+	functionCall8(prototype3, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+	functionCall8(prototype4, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+}
+
 void ICACHE_RAM_ATTR user_init(void) {
 	uart_init(BIT_RATE_115200, 0);
+	
+	//test();
 
-	jsInit();
+	jsInit(true);
+	
+	testFunctionCall();
 
-	os_printf("\nReady\n");
-	os_printf("setTimeout(function() { console.log('timeout!'); }, 1000);\n");
+	jsiConsolePrintf("\nReady\n");
+	jsiConsolePrintf("setTimeout(function() { console.log('timeout!'); }, 1000);\n");
 //	runTimer();
 
-	os_printf("\nRead from flash:\n");
+	jsiConsolePrintf("\nRead from flash:\n");
 	char c;
 	int error;
 	int addr;
 	JsVar *jsCode = jsvNewFromEmptyString();
 	for (addr = 0x60000;; addr++) {
 		if (SPI_FLASH_RESULT_OK != (error = spi_flash_read(addr, (uint32 *)&c, 1))) {
-			os_printf("\nerror %d\n", error);
-			// THIS caused exceptions with jsvUnLocks!
-			//jsvUnLock(jsCode);
-			jsCode = NULL;
+			jsiConsolePrintf("\nerror %d\n", error);
+			jsvUnLock(jsCode);
+			jsCode = 0;
 			break;
 		}
 		if (0x80 & c || 0 == c) break; // allow ascii only
@@ -117,13 +222,23 @@ void ICACHE_RAM_ATTR user_init(void) {
 		uart0_putc(c);
 	}
 	if (jsCode && 0x60000 < addr) {
-//		os_printf("\n%s\n", jsVarToString(jsCode));
-		JsVar *jsResult = jswrap_eval(jsCode);
-		//jsvUnLock(jsCode);
-		jsCode = NULL;
-		os_printf("\nResult: %s\n", jsVarToString(jsResult));
-//		jsvUnLock(jsResult);
-		jsResult = NULL;
+	}
+	else {
+		jsCode = jsvNewFromString(" \
+var v = 0; \
+\
+setInterval(function() { \
+  console.log('timer: ', v++); \
+}, 1000); \
+");
+	}
+	if (jsCode) {
+		JsVar *jsResult = jspEvaluateVar(jsCode, 0, true);
+		jsvUnLock(jsCode); jsCode = 0;
+		if (jsResult) {
+			jsiConsolePrintf("%v\n", jsResult);
+			jsvUnLock(jsResult);
+		}
 	}
 	
 	bool cr = false;
@@ -132,13 +247,11 @@ void ICACHE_RAM_ATTR user_init(void) {
 			uart0_putc(c);
 			if (cr && '\n' == c) {
 				if (jsCode) {
-					writeToFlash(jsCode);
-					JsVar *jsResult = jswrap_eval(jsCode);
-					//jsvUnLock(jsCode);
-					jsCode = NULL;
-					os_printf("\n%s\n", jsVarToString(jsResult));
-					//jsvUnLock(jsResult);
-					jsResult = NULL;
+//					writeToFlash(jsCode);
+					JsVar *jsResult = jspEvaluateVar(jsCode, 0, true);
+					jsvUnLock(jsCode); jsCode = 0;
+					jsiConsolePrintf("%v\n", jsResult);
+					jsvUnLock(jsResult);
 				}
 			} else if (0 < c && !(cr = '\r' == c)) {
 				if (!jsCode) jsCode = jsvNewFromEmptyString();
@@ -147,4 +260,6 @@ void ICACHE_RAM_ATTR user_init(void) {
 		}
 		jsiLoop();
 	}
+	jsKill();
 }
+

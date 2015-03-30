@@ -69,7 +69,7 @@ JsVar *jswrap_json_parse_internal(JsLex *lex) {
       return r;
     }
     case LEX_INT: {
-      long long v = stringToInt(jslGetTokenValueAsString(lex));
+      int64_t v = stringToInt(jslGetTokenValueAsString(lex));
       jslGetNextToken(lex);
       return jsvNewFromLongInteger(v);
     }

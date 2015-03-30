@@ -385,6 +385,7 @@ This can also be removed using clearTimeout
 */
 JsVar *_jswrap_interface_setTimeoutOrInterval(JsVar *func, JsVarFloat interval, bool isTimeout) {
   // NOTE: The 5 sec delay mentioned in the description is handled by jshSleep
+	os_printf("jswrap_interface_setInterval %d\n", (int)interval);
   JsVar *itemIndex = 0;
   if (!jsvIsFunction(func) && !jsvIsString(func)) {
     jsExceptionHere(JSET_ERROR, "Function or String not supplied!");
@@ -395,7 +396,9 @@ JsVar *_jswrap_interface_setTimeoutOrInterval(JsVar *func, JsVarFloat interval, 
     JsSysTime intervalInt = jshGetTimeFromMilliseconds(interval);
     jsvUnLock(jsvObjectSetChild(timerPtr, "time", jsvNewFromLongInteger((jshGetSystemTime() - jsiLastIdleTime) + intervalInt)));
     if (!isTimeout) {
-      jsvUnLock(jsvObjectSetChild(timerPtr, "interval", jsvNewFromLongInteger(intervalInt)));
+		JsVar *i = jsvNewFromLongInteger(intervalInt);
+      jsvUnLock(jsvObjectSetChild(timerPtr, "interval", i));
+		jsiConsolePrintf("interval = %d, %v\n", (int)intervalInt, i);
     }
     jsvObjectSetChild(timerPtr, "callback", func); // intentionally no unlock
 
@@ -406,6 +409,7 @@ JsVar *_jswrap_interface_setTimeoutOrInterval(JsVar *func, JsVarFloat interval, 
   return itemIndex;
 }
 JsVar *jswrap_interface_setInterval(JsVar *func, JsVarFloat timeout) {
+	os_printf("jswrap_interface_setInterval %d\n", (int)timeout);
   return _jswrap_interface_setTimeoutOrInterval(func, timeout, false);
 }
 JsVar *jswrap_interface_setTimeout(JsVar *func, JsVarFloat timeout) {

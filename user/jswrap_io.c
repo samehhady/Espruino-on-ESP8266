@@ -96,12 +96,18 @@ uint32_t _jswrap_io_peek(JsVarInt addr, int wordSize) {
 
 JsVar *jswrap_io_peek(JsVarInt addr, JsVarInt count, int wordSize) {
   if (count<=1) {
-    return jsvNewFromLongInteger((long long)_jswrap_io_peek(addr, wordSize));
+    return jsvNewFromLongInteger((int64_t)_jswrap_io_peek(addr, wordSize));
   } else {
     JsVarDataArrayBufferViewType aType;
-    if (wordSize==1) aType=ARRAYBUFFERVIEW_UINT8;
-    if (wordSize==2) aType=ARRAYBUFFERVIEW_UINT16;
-    if (wordSize==4) aType=ARRAYBUFFERVIEW_UINT32;
+	  // EDIT //
+	  switch (wordSize) {
+		  case 1: aType=ARRAYBUFFERVIEW_UINT8; break;
+		  case 2: aType=ARRAYBUFFERVIEW_UINT16; break;
+		  default: aType=ARRAYBUFFERVIEW_UINT32; break;
+	  }
+//    if (wordSize==1) aType=ARRAYBUFFERVIEW_UINT8;
+//    if (wordSize==2) aType=ARRAYBUFFERVIEW_UINT16;
+//    if (wordSize==4) aType=ARRAYBUFFERVIEW_UINT32;
     JsVar *arr = jsvNewTypedArray(aType, count);
     if (!arr) return 0;
     JsvArrayBufferIterator it;

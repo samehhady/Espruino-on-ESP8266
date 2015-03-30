@@ -10,12 +10,16 @@
 #define PC_BOARD_CHIP "ESP8266"
 #define PC_BOARD_CHIP_FAMILY "ESP8266"
 #define EMBEDDED
+
+//#define __WORDSIZE 32
 //#define FAKE_STDLIB
+
+//#define USE_FLOATS
 
 #include <stdarg.h>
 
 #include "espmissingincludes.h"
-#include "c_types.h"
+//#include "c_types.h"
 //#include "user_interface.h"
 //#include "espconn.h"
 #include "mem.h"
@@ -31,7 +35,7 @@ extern double INFINITY, NAN;
 /*void __exit(int n) {
 	os_printf("EXIT %d", n);
 }*/
-#define exit(n) os_printf("EXIT %d", n)
+#define exit(n) jsiConsolePrintf("EXIT %d", n)
 //void vcbprintf(vcbprintf_callback user_callback, void *user_data, const char *fmt, va_list argp);
 
 

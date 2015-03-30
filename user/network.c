@@ -51,7 +51,9 @@ uint32_t networkParseIPAddress(const char *ip) {
     }
     ip++;
   }
-  addr = (addr>>8) | (unsigned long)(n<<24);
+	// EDIT //
+	addr = (addr>>8) | (uint32_t)n<<24;
+//  addr = (addr>>8) | (unsigned long)(n<<24);
   return addr;
 }
 
