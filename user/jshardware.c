@@ -209,16 +209,14 @@ JsSysTime sysTimeBase = 0;
 
 JsSysTime jshGetSystemTime() { // in us
 	uint32 t = system_get_time();
-	if (time < t) {
+	if (t < time) {
+		jsiConsolePrintf("jshGetSystemTime RESET!");
 		sysTimeBase += time;
 	}
 	time = t;
 	
-	
-	
-  JsSysTime time = (JsSysTime)t;
-//  jsiConsolePrintf("jshGetSystemTime 1 %d, %d, %d\n", t, time, (uint32)time);
-//  os_printf("jshGetSystemTime 2 %d, %lld, %d\n", t, time, (uint32)time);
+  JsSysTime time = (JsSysTime)(t + sysTimeBase);
+	jsiConsolePrintf("systemTime: %d, %d\n", (int)time, (int)t);
   return time;
 }
 
