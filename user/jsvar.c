@@ -1381,7 +1381,6 @@ JsVarInt jsvGetInteger(const JsVar *v) {
 }
 
 int64_t jsvGetLongInteger(const JsVar *v) {
-	jsiConsolePrintf("v: %v\n", v);
   if (jsvIsInt(v)) return (int64_t)jsvGetInteger(v);
   return (int64_t)jsvGetFloat(v);
 }

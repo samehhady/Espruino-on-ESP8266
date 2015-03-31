@@ -1437,33 +1437,23 @@ void jsiIdle() {
 
   // Check timers
   JsSysTime minTimeUntilNext = JSSYSTIME_MAX;
-	os_printf("1: %d\n", (int)minTimeUntilNext);
   JsSysTime time = jshGetSystemTime();
   JsSysTime timePassed = (JsSysTime)(time - jsiLastIdleTime);
-	os_printf("10: %d\n", (int)jsiLastIdleTime);
-	os_printf("11: %d\n", (int)time);
-	os_printf("12: %d\n", (int)timePassed);
   jsiLastIdleTime = time;
 
   JsVar *timerArrayPtr = jsvLock(timerArray);
-	jsiConsolePrintf("timerArrayPtr: %v\n", timerArrayPtr);
   JsvObjectIterator it;
   jsvObjectIteratorNew(&it, timerArrayPtr);
   while (jsvObjectIteratorHasValue(&it)) {
     bool hasDeletedTimer = false;
-	  jsiConsolePrintf("it: %v\n", it.var);
     JsVar *timerPtr = jsvObjectIteratorGetValue(&it);
 	  JsSysTime timerTime = (JsSysTime)jsvGetLongIntegerAndUnLock(jsvObjectGetChild(timerPtr, "time", 0));
     JsSysTime timeUntilNext = timerTime - timePassed;
 //	  if (timeUntilNext < 0) timeUntilNext = 0;
-	  os_printf("20: %d\n", (int)timerTime);
-	  os_printf("21: %d\n", (int)timePassed);
-	  os_printf("22: %d\n", (int)timeUntilNext);
 
     if (timeUntilNext < minTimeUntilNext)
       minTimeUntilNext = timeUntilNext;
 
-	  os_printf("4: %d\n", (int)minTimeUntilNext);
 	if (timeUntilNext<=0) {
       // we're now doing work
       jsiSetBusy(BUSY_INTERACTIVE, true);
@@ -1492,7 +1482,6 @@ void jsiIdle() {
         jsvUnLock(jsvObjectSetChild(data, "time", timePtr));
       }
       JsVar *interval = jsvObjectGetChild(timerPtr, "interval", 0);
-		jsiConsolePrintf("interval: %v %v\n", timerPtr, interval);
       if (exec) {
         if (!jsiExecuteEventCallback(timerCallback, data, 0) && interval) {
           jsError("Error processing interval - removing it.");
@@ -1524,12 +1513,7 @@ void jsiIdle() {
       if (interval) {
 		  JsSysTime i = jsvGetLongIntegerAndUnLock(interval);
         timeUntilNext = timeUntilNext + i;
-		  os_printf("5: %d\n", (int)minTimeUntilNext);
-		  jsiConsolePrintf("50: %v\n", interval);
-		  os_printf("51: %d\n", (int)timeUntilNext);
-		  os_printf("52: %d\n", (int)i);
-		  os_printf("53: %d\n", (int)timeUntilNext);
-      } else {
+       } else {
         // free
         // Beware... may have already been removed!
         jsvObjectIteratorRemoveAndGotoNext(&it, timerArrayPtr);
@@ -1628,7 +1612,6 @@ void jsiIdle() {
       !jshHasEvents() && //no events have arrived in the mean time
       !jshHasTransmitData()/* && //nothing left to send over serial?
       minTimeUntilNext > SYSTICK_RANGE*5/4*/) { // we are sure we won't miss anything - leave a little leeway (SysTick will wake us up!)
-		  os_printf("6: %d\n", (int)minTimeUntilNext);
     jshSleep(minTimeUntilNext);
   }
 }

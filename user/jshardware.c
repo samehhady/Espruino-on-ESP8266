@@ -343,7 +343,7 @@ bool jshFlashContainsCode() {
 /// Enter simple sleep mode (can be woken up by interrupts). Returns true on success
 bool jshSleep(JsSysTime timeUntilWake) {
 	int time = (int)timeUntilWake;
-	os_printf("jshSleep %d\n", time);
+//	os_printf("jshSleep %d\n", time);
 	jshDelayMicroseconds(time);
 	return true;
 }
