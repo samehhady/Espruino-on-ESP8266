@@ -204,8 +204,18 @@ JsVarFloat jshGetMillisecondsFromTime(JsSysTime time) {
 	return (JsVarFloat)time / 1000.0;
 }
 
+static uint32 time = 0;
+JsSysTime sysTimeBase = 0;
+
 JsSysTime jshGetSystemTime() { // in us
 	uint32 t = system_get_time();
+	if (time < t) {
+		sysTimeBase += time;
+	}
+	time = t;
+	
+	
+	
   JsSysTime time = (JsSysTime)t;
 //  jsiConsolePrintf("jshGetSystemTime 1 %d, %d, %d\n", t, time, (uint32)time);
 //  os_printf("jshGetSystemTime 2 %d, %lld, %d\n", t, time, (uint32)time);

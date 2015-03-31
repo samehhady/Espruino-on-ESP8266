@@ -130,7 +130,7 @@ JsVar *jsnCallFunction(void *function, JsnArgumentType argumentSpecifier, JsVar 
 		if (JSWAT_IS_64BIT(returnType))
           result = ((uint64_t (*)(size_t,size_t,size_t,size_t,JsVarFloat,JsVarFloat,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],argData[2],argData[3],doubleData[0],doubleData[1],doubleData[2],doubleData[3]);
 		else // HERE
-			if (argCount<=2)
+			if (argCount<=2) // ESP8266 fix
 				result = ((uint32_t (*)(size_t,size_t,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],doubleData[0],doubleData[1]);
 			else
 				result = ((uint32_t (*)(size_t,size_t,size_t,size_t,JsVarFloat,JsVarFloat,JsVarFloat,JsVarFloat))function)(argData[0],argData[1],argData[2],argData[3],doubleData[0],doubleData[1],doubleData[2],doubleData[3]);
