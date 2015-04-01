@@ -217,7 +217,8 @@ JsSysTime jshGetSystemTime() { // in us
 	
   JsSysTime time = (JsSysTime)(t + sysTimeBase);
 	jsiConsolePrintf("systemTime: %d, %d\n", (int)time, (int)t);
-  return time;
+
+	return time;
 }
 
 void jshSetSystemTime(JsSysTime time) {

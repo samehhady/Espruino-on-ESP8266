@@ -4,6 +4,7 @@
 #include "osapi.h"
 #include "stdout.h"
 #include "uart.h"
+#include "user_interface.h"
 
 #include "platform_config.h"
 #include "jsinteractive.h"
@@ -36,17 +37,33 @@ void jsKill() {
  size_t xPortGetFreeHeapSize( void );
  void vPortInitialiseBlocks( void );
 */
+/*void *alloca(size_t s) {
+	void *p = os_malloc(s);
+	os_printf("alloca %p, %d\n", p, s);
+	return p;
+}*/
+
 #define malloc os_malloc
 #define free os_free
-#define realloc os_realloc
-void *ICACHE_RAM_ATTR os_realloc(void *old, size_t size) {
+//#define realloc os_realloc
+/*void *malloc(size_t s) {
+	void *p = os_malloc(s);
+	os_printf("malloc %p, %d\n", p, s);
+	return p;
+}
+void free(void *p) {
+	os_printf("free %p, %d\n", p, sizeof(p));
+	os_free(p);
+}
+void *os_realloc(void *old, size_t size) {
 	size_t s = sizeof(old);
 	if (size <= s) return old;
 	void *new = os_malloc(size);
+	//os_printf("realloc %p, %d, %p, %d\n", old, s, new, size);
 	memcpy(new, old, s < size ? s : size);
 	os_free(old);
 	return new;
-}
+}*/
 
 const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
 	if (!jsVar) return "undefined";
@@ -68,14 +85,15 @@ const char *ICACHE_RAM_ATTR jsVarToString(JsVar *jsVar) {
 extern UartDevice UartDev;
 
 /*void ICACHE_RAM_ATTR onTimer(void *arg) {
-	static int state = 0;
-	jsEval(state++);
-	jsiLoop();
+//	static int state = 0;
+//	jsEval(state++);
+//	jsiLoop();
+	os_printf("Heap size: %d\n", system_get_free_heap_size());
 }
 void runTimer() {
 	static ETSTimer timer;
 	os_timer_setfn(&timer, onTimer, NULL);
-	os_timer_arm(&timer, 1000, true);
+	os_timer_arm(&timer, 300, true);
 }*/
 
 void writeToFlash(JsVar *jsCode) {
@@ -203,17 +221,18 @@ void nativeSave() {
 
 void ICACHE_RAM_ATTR user_init(void) {
 	uart_init(BIT_RATE_115200, 0);
-	
-	//test();
+	os_printf("Heap size: %d\n", system_get_free_heap_size());
 
 	jsInit(true);
 	addNativeFunction("save", nativeSave);
 
-	testFunctionCall();
+	//testFunctionCall();
+	system_print_meminfo();
 
 	jsiConsolePrintf("\nReady\n");
-	jsiConsolePrintf("setTimeout(function() { console.log('timeout!'); }, 1000);\n");
-//	runTimer();
+	os_printf("Heap size: %d\n", system_get_free_heap_size());
+
+	//runTimer();
 
 	jsiConsolePrintf("\nRead from flash:\n");
 	char c;
@@ -234,15 +253,19 @@ void ICACHE_RAM_ATTR user_init(void) {
 	if (jsCode && 0x60000 < addr) {
 	}
 	else {
-		jsCode = jsvNewFromString(" \
-var v = 0, p = new Pin(2); \
+		char *code = " \
+var v = 0, g = new Pin(12), b = new Pin(13), r = new Pin(15); \
 \
 setInterval(function() { \
-  p.write(!p.read()); \
+  r.write(v&1); \
+  g.write(v>>1&1); \
+  b.write(v>>2&1); \
   console.log('timer: ', v++); \
-}, 1000); \
+}, 100); \
 save(); \
-");
+";
+		jsiConsolePrintf(code);
+		jsCode = jsvNewFromString(code);
 	}
 	if (jsCode) {
 		JsVar *jsResult = jspEvaluateVar(jsCode, 0, true);
@@ -252,7 +275,8 @@ save(); \
 			jsvUnLock(jsResult);
 		}
 	}
-	
+	os_printf("Heap size: %d\n", system_get_free_heap_size());
+
 	bool cr = false;
 	while (true) {
 		while ((c = uart_getc())) {
@@ -270,6 +294,7 @@ save(); \
 				jsvAppendStringBuf(jsCode, &c, 1);
 			}
 		}
+		os_printf("Heap size: %d\n", system_get_free_heap_size());
 		jsiLoop();
 	}
 	jsKill();

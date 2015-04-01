@@ -7,7 +7,7 @@ Recent achievements:
 - Upload and run main.js (flash memory address 0x60000)
 - Evaluate JS code from serial port (115200 baud) and write to flash.
 - GPIO functionality implemented.
-- setTimeout & setInterval now work great (it came out as an issue - calling native function with 2 parameters)
+- setTimeout & setInterval now work great (it came out as an issue - calling native function with 1 or 2 arguments)
 
 To do:
 - More hardware specifics: Add flash file system, other peripheries, then WiFi, DHCP, TCP/IP, socket, HTTP and then webSocket!

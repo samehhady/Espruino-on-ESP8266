@@ -23,10 +23,15 @@
 //#include "user_interface.h"
 //#include "espconn.h"
 #include "mem.h"
+#include "alloca.h"
 #include "osapi.h"
 
+//typedef sint64_t int64_t;
+//#define int64_t sint64_t
+
 //#define itostr(a, b, c) os_sprintf(b, 16 == c ? "%x" : "%d", a)
-#define alloca os_malloc
+//#define alloca os_malloc
+//void *alloca(size_t size);
 extern int isnan ( double );
 extern int isfinite ( double );
 extern double INFINITY, NAN;
@@ -52,16 +57,21 @@ extern double INFINITY, NAN;
 // When to send the message that we can start receiving again
 #define IOBUFFER_XON ((TXBUFFERMASK)*3/8)
 
+/*
+ data  : 0x3ffe8000 ~ 0x3ffe8a54, len: 2644
+ rodata: 0x3ffe8a60 ~ 0x3ffed78c, len: 19756
+ bss   : 0x3ffed790 ~ 0x3fff89a8, len: 45592
+ heap  : 0x3fff89a8 ~ 0x3fffc000, len: 13912
+*/
+//#define RESIZABLE_JSVARS
+#define RAM_TOTAL (13*1024)//13640//(32*1024)
+#define FLASH_TOTAL 0x80000//(512*1024)
 
-
-#define RAM_TOTAL (32*1024)
-#define FLASH_TOTAL (256*1024)
-
-#define JSVAR_CACHE_SIZE                1023 // Number of JavaScript variables in RAM
-#define FLASH_AVAILABLE_FOR_CODE        245760
-#define FLASH_PAGE_SIZE                 1024
-#define FLASH_SAVED_CODE_PAGES          16
-#define FLASH_START                     0x8000000
+#define JSVAR_CACHE_SIZE                200//1023 // Number of JavaScript variables in RAM
+#define FLASH_AVAILABLE_FOR_CODE        0x20000
+#define FLASH_PAGE_SIZE                 0x200//512
+#define FLASH_SAVED_CODE_PAGES          0x100//16
+#define FLASH_START                     0x60000
 
 #define FLASH_SAVED_CODE_LENGTH (FLASH_PAGE_SIZE*FLASH_SAVED_CODE_PAGES)
 #define FLASH_SAVED_CODE_START (FLASH_START + FLASH_TOTAL - FLASH_SAVED_CODE_LENGTH)

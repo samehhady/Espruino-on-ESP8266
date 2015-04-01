@@ -96,7 +96,7 @@ uint32_t _jswrap_io_peek(JsVarInt addr, int wordSize) {
 
 JsVar *jswrap_io_peek(JsVarInt addr, JsVarInt count, int wordSize) {
   if (count<=1) {
-    return jsvNewFromLongInteger((int64_t)_jswrap_io_peek(addr, wordSize));
+    return jsvNewFromLongInteger((long long)_jswrap_io_peek(addr, wordSize));
   } else {
     JsVarDataArrayBufferViewType aType;
 	  // EDIT //

@@ -106,7 +106,7 @@ JsVar *jswrap_parseInt(JsVar *v, JsVar *radixVar) {
   char buffer[JS_NUMBER_BUFFER_SIZE];
   jsvGetString(v, buffer, JS_NUMBER_BUFFER_SIZE);
   bool hasError = false;
-  int64_t i = stringToIntWithRadix(buffer, radix, &hasError);
+  long long i = stringToIntWithRadix(buffer, radix, &hasError);
   if (hasError) return jsvNewFromFloat(NAN);
   return jsvNewFromLongInteger(i);
 }

@@ -19,9 +19,9 @@
 static bool isNegativeZero(double x) {
   double NEGATIVE_ZERO = -0.0;
 // EDIT //
-	register int64_t
-	*a = (int64_t*)&x,
-	*b = (int64_t*)&NEGATIVE_ZERO;
+	register long long
+	*a = (long long*)&x,
+	*b = (long long*)&NEGATIVE_ZERO;
   return *a == *b;
 }
 

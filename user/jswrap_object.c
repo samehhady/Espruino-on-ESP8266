@@ -20,7 +20,7 @@
 #include "jswrap_stream.h"
 #include "jswrap_functions.h"
 #ifdef __MINGW32__
-#include "malloc.h" // needed for alloca
+//#include "malloc.h" // needed for alloca
 #endif//__MINGW32__
 
 /*JSON{
