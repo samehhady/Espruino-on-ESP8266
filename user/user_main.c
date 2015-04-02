@@ -225,7 +225,7 @@ void ICACHE_RAM_ATTR user_init(void) {
 
 	jsInit(true);
 	addNativeFunction("save", nativeSave);
-	addNativeFunction("discard", nativeDiscard);
+//	addNativeFunction("discard", nativeDiscard);
 
 	//testFunctionCall();
 	system_print_meminfo();
