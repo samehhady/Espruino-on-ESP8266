@@ -122,12 +122,12 @@ int chtod(char ch) {
 }
 
 /* convert a number in the given radix to an int. if radix=0, autodetect */
-int64_t stringToIntWithRadix(const char *s, int forceRadix, bool *hasError) {
+long long stringToIntWithRadix(const char *s, int forceRadix, bool *hasError) {
   // skip whitespace (strange parseInt behaviour)
   while (isWhitespace(*s)) s++;
 
   bool isNegated = false;
-  int64_t v = 0;
+  long long v = 0;
   if (*s == '-') {
     isNegated = true;
     s++;
@@ -156,7 +156,7 @@ int64_t stringToIntWithRadix(const char *s, int forceRadix, bool *hasError) {
 }
 
 /* convert hex, binary, octal or decimal string into an int */
-int64_t stringToInt(const char *s) {
+long long stringToInt(const char *s) {
     return stringToIntWithRadix(s,0,0);
 }
 

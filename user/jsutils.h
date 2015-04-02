@@ -147,7 +147,7 @@ typedef double JsVarFloat;
 
 // EDIT //
 #define JSSYSTIME_MAX INT64_MAX //0x7FFFFFFFFFFFFFFFLL
-typedef int64_t JsSysTime;
+typedef long long JsSysTime;
 //#define JSSYSTIME_MAX INT32_MAX //0x7FFFFFFF
 //typedef int32_t JsSysTime;
 #define JSSYSTIME_INVALID ((JsSysTime)-1)
@@ -389,9 +389,9 @@ const char *escapeCharacter(char ch);
 /// Convert a character to the hexadecimal equivalent (or -1)
 int chtod(char ch);
 /* convert a number in the given radix to an int. if radix=0, autodetect */
-int64_t stringToIntWithRadix(const char *s, int radix, bool *hasError);
+long long stringToIntWithRadix(const char *s, int radix, bool *hasError);
 /* convert hex, binary, octal or decimal string into an int */
-int64_t stringToInt(const char *s);
+long long stringToInt(const char *s);
 
 // forward decl
 struct JsLex;
