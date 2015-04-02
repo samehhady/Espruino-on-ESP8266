@@ -2,7 +2,7 @@
 #define ESPMISSINGINCLUDES_H
 
 //#include <stdint.h>
-#include <c_types.h>
+//#include <c_types.h>
 #include <ets_sys.h>
 
 //#define ICACHE_STORE_ATTR __attribute__((aligned(4)))
