@@ -146,7 +146,7 @@ typedef double JsVarFloat;
 #endif
 
 // EDIT //
-#define JSSYSTIME_MAX INT64_MAX //0x7FFFFFFFFFFFFFFFLL
+#define JSSYSTIME_MAX 0x7FFFFFFFFFFFFFFFLL
 typedef long long JsSysTime;
 //#define JSSYSTIME_MAX INT32_MAX //0x7FFFFFFF
 //typedef int32_t JsSysTime;
