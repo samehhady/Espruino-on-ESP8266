@@ -25,7 +25,7 @@
 
 #ifdef LINUX
 //#include <inttypes.h>
-#include <c_types.h>
+//#include <c_types.h>
 #endif
 
 void jshInit();
