@@ -361,7 +361,7 @@ os_printf("9\n");
 				*b = PWM_DEPTH - value;
 				break;
 		}
-		*g = (uint8_t)(sqrtf((float)*g/(float)PWM_DEPTH) * (float)PWM_DEPTH);
+//		*g = (uint8_t)(sqrtf((float)*g/(float)PWM_DEPTH) * (float)PWM_DEPTH);
 		jshDelayMicroseconds(10000);
 		if (++c == 6 * PWM_DEPTH) c = 0;
 	}
