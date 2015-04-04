@@ -219,8 +219,160 @@ void nativeSave() {
 	jsiConsolePrintf("nativeSave\n");
 }
 
+#define PWM_DEPTH 0xFF
+#define PWM_DEPTH_BIT 8
+//#define PWM_FACTOR 0x10
+int32_t PWM_FACTOR = 0x10;
+
+#define DIVDED_BY_1 0
+#define DIVDED_BY_16 4
+#define DIVDED_BY_256 8
+#define DIVDE_BIT DIVDED_BY_256
+//APB_CLK_FREQ>>DIVDE_BIT
+
+#define TM_EDGE_INT 0
+#define TM_LEVEL_INT 1
+#define FRC1_ENABLE_TIMER 0x80
+
+//APB_CLK_FREQ>>DIVDE_BIT
+
+uint8_t analogValue[16] = {0};
+uint8_t pwmValue = 0;
+
+void ICACHE_RAM_ATTR pwm_timer_intr_handler() {
+	RTC_CLR_REG_MASK(FRC1_INT_ADDRESS, FRC1_INT_CLR_MASK);
+
+	uint16_t on = 0, off = 0;
+	uint8_t min = PWM_DEPTH;
+	
+	for (register int i = 0; i < 16; i++) {
+		//if (!pwmEnabled[i]) continue;
+		uint8_t a = analogValue[i];
+		if (pwmValue < a) {
+			if (a < min) min = a;
+			on |= 0x1 << i;
+		}
+		else if (a) {
+			off |= 0x1 << i;
+		}
+	}
+	gpio_output_set(on, off, on|off, 0);
+	RTC_REG_WRITE(FRC1_LOAD_ADDRESS, (min - pwmValue) * PWM_FACTOR);
+	pwmValue = min < PWM_DEPTH ? min : 0;
+}
+
 void ICACHE_RAM_ATTR user_init(void) {
 	uart_init(BIT_RATE_115200, 0);
+
+os_printf("1\n");
+	RTC_REG_WRITE(FRC1_CTRL_ADDRESS,
+				  DIVDE_BIT
+				  | FRC1_ENABLE_TIMER
+				  | TM_EDGE_INT);
+os_printf("2\n");
+
+	RTC_REG_WRITE(FRC1_LOAD_ADDRESS, PWM_DEPTH * PWM_FACTOR);
+os_printf("3\n");
+
+	
+	jshPinSetState(2, JSHPINSTATE_GPIO_OUT);
+	jshPinSetState(12, JSHPINSTATE_GPIO_OUT);
+	jshPinSetState(13, JSHPINSTATE_GPIO_OUT);
+	jshPinSetState(15, JSHPINSTATE_GPIO_OUT);
+os_printf("4\n");
+
+	jshPinSetValue(2, false);
+	jshPinSetValue(12, false);
+	jshPinSetValue(13, false);
+	jshPinSetValue(15, false);
+os_printf("5\n");
+
+
+	ETS_FRC_TIMER1_INTR_ATTACH(pwm_timer_intr_handler, NULL);
+os_printf("6\n");
+	
+	
+//	WRITE_PERI_REG(FRC1_LOAD_ADDRESS, 0);
+os_printf("7\n");
+	
+	TM1_EDGE_INT_ENABLE();
+os_printf("8\n");
+	ETS_FRC1_INTR_ENABLE();
+//	RTC_REG_WRITE(FRC1_LOAD_ADDRESS, 1000);
+os_printf("9\n");
+//	bool v = false;
+/*	int8_t delta = 1;
+	uint8_t value = 0;
+	while (true) {
+//		jshPinSetValue(2, v);
+//		v = !v;
+		jshDelayMicroseconds(1000);
+
+		if (PWM_DEPTH == value) {
+			delta = -1;
+		}
+		else if (0 == value) {
+			delta = 1;
+		}
+		value += delta;
+		
+//		analogValue[2] = value;
+		analogValue[15] = PWM_DEPTH-value;
+		analogValue[13] = value;
+	}
+*/
+	int c = 0;
+	uint8_t *r = analogValue + 15;
+	uint8_t *g = analogValue + 12;
+	uint8_t *b = analogValue + 13;
+	
+	while (true) {
+		int phase = c/PWM_DEPTH;
+		int value = c - phase * PWM_DEPTH;
+		switch (phase) {
+			case 0: // 1 R 0
+				*r = PWM_DEPTH;
+				*g = value;
+				*b = 0;
+				break;
+			case 1: // F 1 0
+				*r = PWM_DEPTH - value;
+				*g = PWM_DEPTH;
+				*b = 0;
+				break;
+			case 2: // 0 1 R
+				*r = 0;
+				*g = PWM_DEPTH;
+				*b = value;
+				break;
+			case 3: // 0 F 1
+				*r = 0;
+				*g = PWM_DEPTH - value;
+				*b = PWM_DEPTH;
+				break;
+			case 4: // R 0 1
+				*r = value;
+				*g = 0;
+				*b = PWM_DEPTH;
+				break;
+			case 5: // 1 0 F
+				*r = PWM_DEPTH;
+				*g = 0;
+				*b = PWM_DEPTH - value;
+				break;
+		}
+		*g = (uint8_t)(sqrtf((float)*g/(float)PWM_DEPTH) * (float)PWM_DEPTH);
+		jshDelayMicroseconds(10000);
+		if (++c == 6 * PWM_DEPTH) c = 0;
+	}
+
+}
+/*
+	
+	
+	
+	
+	return;
 	os_printf("Heap size: %d\n", system_get_free_heap_size());
 
 	jsInit(true);
@@ -299,5 +451,5 @@ save(); \
 		jsiLoop();
 	}
 	jsKill();
-}
+}*/
 

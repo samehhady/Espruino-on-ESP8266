@@ -25,6 +25,8 @@
 #include "mem.h"
 #include "alloca.h"
 #include "osapi.h"
+#include "gpio.h"
+#include "user_interface.h"
 
 //typedef sint64_t int64_t;
 //#define int64_t sint64_t

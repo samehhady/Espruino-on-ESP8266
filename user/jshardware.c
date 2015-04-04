@@ -21,9 +21,6 @@
 #include "jsparse.h"
 #include "jsinteractive.h"
 
-#include "gpio.h"
-#include "user_interface.h"
-
 void jshUSARTInitInfo(JshUSARTInfo *inf) {
 	inf->baudRate = DEFAULT_BAUD_RATE;
 	inf->pinRX    = PIN_UNDEFINED;
@@ -133,7 +130,7 @@ static uint8_t function(JshPinState state) {
 	}
 }
 void jshPinSetState(Pin pin, JshPinState state) {
-//	jsiConsolePrintf("jshPinSetState %d, %d\n", pin, state);
+	jsiConsolePrintf("jshPinSetState %d, %d\n", pin, state);
 	
 	assert(pin < 16);
 	int periph = PERIPHS_IO_MUX + PERIPHS[pin];
@@ -174,13 +171,11 @@ JshPinState jshPinGetState(Pin pin) {
 
 void jshPinSetValue(Pin pin, bool value) {
 //	jsiConsolePrintf("jshPinSetValue %d, %d\n", pin, value);
-
   GPIO_OUTPUT_SET(pin, value);
 }
 
 bool jshPinGetValue(Pin pin) {
 //	jsiConsolePrintf("jshPinGetValue %d, %d\n", pin, GPIO_INPUT_GET(pin));
-
   return GPIO_INPUT_GET(pin);
 }
 
@@ -228,14 +223,35 @@ void jshSetSystemTime(JsSysTime time) {
 // ----------------------------------------------------------------------------
 
 JsVarFloat jshPinAnalog(Pin pin) {
+	jsiConsolePrintf("jshPinAnalog: %d\n", pin);
   return (JsVarFloat)system_adc_read();
 }
 
 int jshPinAnalogFast(Pin pin) {
+	jsiConsolePrintf("jshPinAnalogFast: %d\n", pin);
 	return NAN;
 }
 
+//#define PWM_DEPTH 0xFF
+/*uint8_t pwmValue[16] = {0};
+bool pwmPins[16] = {0};
+bool pwmFlag[16] = {0};
+bool pwmRunning = false;
+uint16 pwmFrequency = 0;
+*/
 JshPinFunction jshPinAnalogOutput(Pin pin, JsVarFloat value, JsVarFloat freq) { // if freq<=0, the default is used
+//	jsiConsolePrintf("jshPinAnalogOutput: %d, %d, %d\n", pin, (int)value * PWM_DEPTH, (int)freq);
+//	pwmPins[pin] = true;
+//	pwmValue[pin] =
+//	void pwm_init(uint16 freq, uint8 *duty)
+//	pwm_start
+/*	if (0.0 < freq) {
+		uint16 f = (uint16)freq;
+		if (f != pwm_get_freq())
+			pwm_set_freq(f);
+	}
+	pwm_set_duty((uint8)(value * PWM_DEPTH), pin);
+ */
   return 0;
 }
 
