@@ -13,7 +13,7 @@
 #include "jsvar.h"
 #include "jswrap_functions.h"
 #include "spi_flash.h"
-
+#include "jswrap_math.h"
 
 // error handler for pure virtual calls
 void __cxa_pure_virtual() { while (1); }
@@ -222,7 +222,7 @@ void nativeSave() {
 #define PWM_DEPTH 0xFF
 #define PWM_DEPTH_BIT 8
 //#define PWM_FACTOR 0x10
-int32_t PWM_FACTOR = 0x10;
+int32_t PWM_FACTOR = 0x08;
 
 #define DIVDED_BY_1 0
 #define DIVDED_BY_16 4
@@ -361,8 +361,9 @@ os_printf("9\n");
 				*b = PWM_DEPTH - value;
 				break;
 		}
-//		*g = (uint8_t)(sqrtf((float)*g/(float)PWM_DEPTH) * (float)PWM_DEPTH);
-		jshDelayMicroseconds(10000);
+
+		*g /= 3; // green is 3x stronger than 2 other colors
+		jshDelayMicroseconds(5000);
 		if (++c == 6 * PWM_DEPTH) c = 0;
 	}
 
