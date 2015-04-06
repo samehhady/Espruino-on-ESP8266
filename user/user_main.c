@@ -223,7 +223,7 @@ void nativeSave() {
 #define PWM_DEPTH_BIT 8
 //#define PWM_FACTOR 0x10
 //int32_t PWM_FACTOR = 0x10;
-int32_t PWM_FACTOR = 0x8;
+int32_t PWM_FACTOR = 0x10;
 
 #define DIVDED_BY_1 0
 #define DIVDED_BY_16 4
@@ -242,24 +242,50 @@ uint8_t pwmValue = 0;
 
 void ICACHE_RAM_ATTR pwm_timer_intr_handler() {
 	RTC_CLR_REG_MASK(FRC1_INT_ADDRESS, FRC1_INT_CLR_MASK);
+	if (pwmValue == PWM_DEPTH) pwmValue = 0;
 
 	uint16_t on = 0, off = 0;
-	uint8_t min = PWM_DEPTH;
+	uint8_t v = PWM_DEPTH;
 	
 	for (register int i = 0; i < 16; i++) {
 		//if (!pwmEnabled[i]) continue;
-		uint8_t a = analogValue[i];
+		register uint8_t a = analogValue[i];
+		if (!a) continue;
 		if (pwmValue < a) {
-			if (a < min) min = a;
+			if (a < v) v = a;
 			on |= 0x1 << i;
 		}
-		else if (a) {
+		else {
 			off |= 0x1 << i;
 		}
 	}
-	gpio_output_set(on, off, on|off, 0);
-	RTC_REG_WRITE(FRC1_LOAD_ADDRESS, (min - pwmValue) * PWM_FACTOR);
-	pwmValue = min < PWM_DEPTH ? min : 0;
+	gpio_output_set(on, off, 0, 0);
+	register uint8_t t = v - pwmValue;
+	if (t == PWM_DEPTH) {
+		pwmValue = 0;
+		return;
+	}
+	RTC_REG_WRITE(FRC1_LOAD_ADDRESS, t * PWM_FACTOR);
+	pwmValue = v;
+}
+void ICACHE_RAM_ATTR pwm_set(int pin, uint8_t value) {
+	if (0 == value) { // digital off
+		analogValue[pin] = 0;
+		gpio_output_set(0, 0x1 << pin, 0, 0);
+		return;
+	}
+	if (PWM_DEPTH == value) { // digital on
+		analogValue[pin] = 0;
+		gpio_output_set(0x1 << pin, 0, 0, 0);
+		return;
+	}
+	// use pwm
+	analogValue[pin] = value;
+	if (0 == pwmValue) { // run pwm
+		pwmValue = value;
+		gpio_output_set(0x1 << pin, 0, 0, 0); // current on
+		RTC_REG_WRITE(FRC1_LOAD_ADDRESS, value * PWM_FACTOR);
+	}
 }
 
 void ICACHE_RAM_ATTR user_init(void) {
@@ -323,47 +349,64 @@ os_printf("9\n");
 	}
 */
 	int c = 0;
-	uint8_t *r = analogValue + 15;
-	uint8_t *g = analogValue + 12;
-	uint8_t *b = analogValue + 13;
+	uint8_t r = 0, g = 0, b = 0;
 	
 	while (true) {
 		int phase = c/PWM_DEPTH;
 		int value = c - phase * PWM_DEPTH;
 		switch (phase) {
 			case 0: // 1 R 0
-				*r = PWM_DEPTH;
-				*g = value;
-				*b = 0;
+				r = PWM_DEPTH;
+				g = value;
+				b = 0;
 				break;
 			case 1: // F 1 0
-				*r = PWM_DEPTH - value;
-				*g = PWM_DEPTH;
-				*b = 0;
+				r = PWM_DEPTH - value;
+				g = PWM_DEPTH;
+				b = 0;
 				break;
 			case 2: // 0 1 R
-				*r = 0;
-				*g = PWM_DEPTH;
-				*b = value;
+				r = 0;
+				g = PWM_DEPTH;
+				b = value;
 				break;
 			case 3: // 0 F 1
-				*r = 0;
-				*g = PWM_DEPTH - value;
-				*b = PWM_DEPTH;
+				r = 0;
+				g = PWM_DEPTH - value;
+				b = PWM_DEPTH;
 				break;
 			case 4: // R 0 1
-				*r = value;
-				*g = 0;
-				*b = PWM_DEPTH;
+				r = value;
+				g = 0;
+				b = PWM_DEPTH;
 				break;
 			case 5: // 1 0 F
-				*r = PWM_DEPTH;
-				*g = 0;
-				*b = PWM_DEPTH - value;
+				r = PWM_DEPTH;
+				g = 0;
+				b = PWM_DEPTH - value;
 				break;
 		}
 
-		*g /= 2; // green is 2x stronger than 2 other colors
+		g /= 2; // green is 2x stronger than 2 other colors
+		uint16_t r16 = (uint16_t)(r) * 2;
+		if (r16 > PWM_DEPTH) r = PWM_DEPTH;
+		else r = (uint8_t)r16;
+//		*r = ; //(uint8_t) ((float)PWM_DEPTH -
+//						jswrap_math_sqrt(
+//										 (float)(*r)/(float)PWM_DEPTH)
+//						);
+		
+		int p = c/128;
+		int v = c - p * 128;
+		p = p % 2;
+		if (p) v = 128-v;
+		float f = 1.0f - v / 128.0f;
+		pwm_set(15, r * f);
+		pwm_set(12, g * f);
+		pwm_set(13, b * f);
+		
+//		pwm_set(2, PWM_DEPTH - (uint8_t)(f * PWM_DEPTH));
+		
 		jshDelayMicroseconds(5000);
 		if (++c == 6 * PWM_DEPTH) c = 0;
 	}
