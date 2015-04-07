@@ -19,7 +19,7 @@
 #include "jsvar.h"
 #include "jswrapper.h"
 
-#include <stdint.h> // uint32_t
+//#include <stdint.h> // uint32_t
 
 #if defined __WORDSIZE && __WORDSIZE == 64
  #define JSWAT_IS_64BIT(N) (\

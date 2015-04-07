@@ -140,7 +140,7 @@
     #define __FPU_USED         0
 #endif
 
-#include <stdint.h>                      /*!< standard types definitions                      */
+//#include <stdint.h>                      /*!< standard types definitions                      */
 #include <core_cmInstr.h>                /*!< Core Instruction Access                         */
 #include <core_cmFunc.h>                 /*!< Core Function Access                            */
 #include <core_cm4_simd.h>               /*!< Compiler specific SIMD Intrinsics               */

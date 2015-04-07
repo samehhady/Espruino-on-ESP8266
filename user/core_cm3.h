@@ -118,7 +118,7 @@
     /* add preprocessor checks */
 #endif
 
-#include <stdint.h>                      /*!< standard types definitions                      */
+//#include <stdint.h>                      /*!< standard types definitions                      */
 #include "core_cmInstr.h"                /*!< Core Instruction Access                         */
 #include "core_cmFunc.h"                 /*!< Core Function Access                            */
 
