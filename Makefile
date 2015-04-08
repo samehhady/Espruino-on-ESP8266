@@ -16,14 +16,14 @@ JS_BASE		= scripts
 # the PATH.
 #XTENSA_TOOLS_ROOT ?=
 # I need this for Xcode...
-XTENSA_TOOLS_ROOT ?= ../esp-open-sdk/xtensa-lx106-elf-mac/bin/
+XTENSA_TOOLS_ROOT ?= /Volumes/ESP/xtensa-lx106-elf/bin/
 
 # base directory of the ESP8266 SDK package, absolute
-SDK_BASE	?= ../esp-open-sdk/sdk
+SDK_BASE	?= /Volumes/ESP/esp_iot_sdk_v0.9.5
 
 #Esptool.py path and port
 #ESPTOOL		?= ../esptool-ck-master/esptool-mac
-ESPTOOL		?= ../esptool-ck-master/esptool-mac
+ESPTOOL		?= /Volumes/ESP/esptool/esptool.py
 FW_TOOL		?= /usr/bin/esptool
 #ESPPORT		?= /dev/ttyUSB0
 ESPPORT		?= /dev/tty.usbserial-A8004Z7l
