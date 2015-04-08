@@ -9,8 +9,8 @@
 # Output directors to store intermediate compiled files
 # relative to the project directory
 BUILD_BASE	= build
-FW_BASE		= firmware
-JS_BASE		= scripts
+FW_BASE	= firmware
+JS_BASE	= scripts
 
 # Base directory for the compiler. Needs a / at the end; if not set it'll use the tools that are in
 # the PATH.
@@ -24,31 +24,46 @@ SDK_BASE	?= ../esp-open-sdk/sdk
 #Esptool.py path and port
 #ESPTOOL		?= ../esptool-ck-master/esptool-mac
 ESPTOOL		?= ../esptool-ck-master/esptool-mac
-FW_TOOL		?= /usr/bin/esptool
 #ESPPORT		?= /dev/ttyUSB0
-ESPPORT		?= /dev/tty.usbserial-A8004Z7l
+ESPPORT		?= /dev/tty.usbserial
 #ESPDELAY indicates seconds to wait between flashing the two binary images
 ESPDELAY	?= 1
-#ESPBAUD		?= 460800
-ESPBAUD		?= 115200
+ESPBAUD		?= 460800
+#ESPBAUD		?= 115200
 
 # name for the target project
 TARGET		= espruino
 
 # which modules (subdirectories) of the project to include in compiling
 #MODULES		= driver user lwip/api lwip/app lwip/core lwip/core/ipv4 lwip/netif
-MODULES		= user
+MODULES		= driver user
 EXTRA_INCDIR	= include $(SDK_BASE)/include
 
 # libraries used in this project, mainly provided by the SDK
-LIBS		= c gcc hal phy pp net80211 lwip wpa upgrade main ssl
+LIBS		= c gcc hal phy pp net80211 wpa main lwip
+#LIBS		= cirom gcc hal phy pp net80211 wpa main lwip
 
 # compiler flags using during compilation of source files
-CFLAGS		= -Os -std=gnu99 -fno-builtin -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
+CFLAGS		= \
+		-Os \
+		-ggdb \
+		-std=c99 \
+		-Werror \
+		-Wpointer-arith \
+		-Wundef \
+		-Wall \
+		-Wl,-EL \
+		-fno-inline-functions \
+		-nostdlib \
+		-mlongcalls \
+		-mtext-section-literals \
+		-D__ets__ \
+		-DICACHE_FLASH \
+		-Wno-address \
+		-fno-strict-aliasing
 
 # linker flags used to generate the main object file
 LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
-
 #-Wl,--size-opt
 
 # linker script used for the above linkier step
@@ -98,7 +113,7 @@ MODULE_INCDIR	:= $(addsuffix /include,$(INCDIR))
 
 FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1).bin)
 FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2).bin)
-JS_FILE   :=$(addprefix $(JS_BASE)/,$(JS_FILE).js)
+JS_FILE :=$(addprefix $(JS_BASE)/,$(JS_FILE).js)
 
 V ?= $(VERBOSE)
 ifeq ("$(V)","1")
@@ -125,11 +140,11 @@ all: checkdirs $(TARGET_OUT) $(FW_FILE_1) $(FW_FILE_2)
 
 $(FW_FILE_1): $(TARGET_OUT) firmware
 	$(vecho) "FW $@"
-	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_1_ARGS)
+	$(Q) $(ESPTOOL) -eo $(TARGET_OUT) $(FW_FILE_1_ARGS)
 
 $(FW_FILE_2): $(TARGET_OUT) firmware
 	$(vecho) "FW $@"
-	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_2_ARGS)
+	$(Q) $(ESPTOOL) -eo $(TARGET_OUT) $(FW_FILE_2_ARGS)
 
 $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
@@ -158,8 +173,8 @@ flash: $(FW_FILE_1) $(FW_FILE_2)
 
 js: $(JS_FILE)
 	$(Q) [ $(ESPDELAY) -ne 0 ] && echo "Please put the ESP in bootloader mode..." || true
-	@echo $(filter-out $@,$(MAKECMDGOALS))
 	$(Q) sleep $(ESPDELAY) || true
+#	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x60000 $(JS_FILE)
 	$(Q) $(XTENSA_TOOLS_ROOT)esptool.py --port $(ESPPORT) write_flash 0x60000 $(JS_BASE)/$(filter-out $@,$(MAKECMDGOALS)).js
 
 #webpages.espfs: html/ html/wifi/ mkespfsimage/mkespfsimage

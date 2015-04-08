@@ -2,8 +2,8 @@
 #define sha1_h
 
 // EDIT
-#include <inttypes.h>
-//#include <c_types.h>
+//#include <inttypes.h>
+#include <c_types.h>
 
 void sha1Init(void);
 //void sha1InitHmac(const uint8_t* secret, int secretLength);

@@ -19,7 +19,7 @@
 #include <stdarg.h>
 
 #include "espmissingincludes.h"
-//#include "c_types.h"
+#include "c_types.h"
 //#include "user_interface.h"
 //#include "espconn.h"
 #include "mem.h"
@@ -37,20 +37,10 @@ extern int isfinite ( double );
 extern double INFINITY, NAN;
 #define RAND_MAX (0xFFFFFFFFU)
 
-// SAMEH FIX
-#include "stdint.h"
-/*#if __int32_t_defined
-#if __have_long32
 #define INT32_MIN 	 (-2147483647L-1)
 #define INT32_MAX 	 2147483647L
 #define UINT32_MAX       4294967295UL
-#else
-#define INT32_MIN 	 (-2147483647-1)
-#define INT32_MAX 	 2147483647
-#define UINT32_MAX       4294967295U
-#endif
-#endif
-*/
+
 /*void __exit(int n) {
 	os_printf("EXIT %d", n);
 }*/
