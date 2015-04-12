@@ -8,25 +8,11 @@
 #
 # Output directors to store intermediate compiled files
 # relative to the project directory
+include CustomVariables
 BUILD_BASE	= build
 FW_BASE		= firmware
 JS_BASE		= scripts
 
-# Base directory for the compiler. Needs a / at the end; if not set it'll use the tools that are in
-# the PATH.
-#XTENSA_TOOLS_ROOT ?=
-# I need this for Xcode...
-XTENSA_TOOLS_ROOT ?= /Volumes/ESP/xtensa-lx106-elf/bin/
-
-# base directory of the ESP8266 SDK package, absolute
-SDK_BASE	?= /Volumes/ESP/esp_iot_sdk_v0.9.5
-
-#Esptool.py path and port
-#ESPTOOL		?= ../esptool-ck-master/esptool-mac
-ESPTOOL		?= /Volumes/ESP/esptool/esptool.py
-FW_TOOL		?= /usr/bin/esptool
-#ESPPORT		?= /dev/ttyUSB0
-ESPPORT		?= /dev/tty.usbserial-A8004Z7l
 #ESPDELAY indicates seconds to wait between flashing the two binary images
 ESPDELAY	?= 1
 #ESPBAUD		?= 460800
